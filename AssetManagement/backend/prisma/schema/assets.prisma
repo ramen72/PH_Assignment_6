@@ -1,0 +1,41 @@
+model Asset {
+  id         String @id @default(uuid()) @db.Uuid
+  assetTag   String @unique @map("asset_tag")
+  name       String
+  categoryId String @db.Uuid
+
+  brand        String?
+  model        String?
+  serialNumber String? @unique @map("serial_number")
+
+  description String?
+
+  purchasePrice  Decimal   @map("purchase_price") @db.Decimal(12, 2)
+  purchaseDate   DateTime  @map("purchase_date") @db.Date
+  warrantyExpiry DateTime? @map("warranty_expiry") @db.Date
+
+  condition AssetCondition @default(NEW)
+  status    AssetStatus    @default(AVAILABLE)
+
+  location String?
+  imageUrl String? @map("image_url")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  category           AssetCategory       @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  assignments        AssetAssignment[]
+  assetRequests      AssetRequest[]
+  assetPurchases     AssetPurchase[]
+  maintenanceRecords MaintenanceRecord[]
+  vendor             Vendor?             @relation(fields: [vendorId], references: [id])
+  vendorId           String?             @db.Uuid
+
+  @@index([categoryId])
+  @@index([status])
+  @@index([condition])
+  @@index([purchaseDate])
+  @@index([location])
+  @@map("assets")
+}

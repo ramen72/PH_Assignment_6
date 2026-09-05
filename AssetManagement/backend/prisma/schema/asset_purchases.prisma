@@ -1,0 +1,34 @@
+model AssetPurchase {
+  id String @id @default(uuid()) @db.Uuid
+
+  assetId     String @db.Uuid
+  vendorId    String @db.Uuid
+  createdById String @db.Uuid
+
+  invoiceNumber String  @unique @map("invoice_number")
+  quantity      Int     @default(1)
+  unitPrice     Decimal @map("unit_price") @db.Decimal(12, 2)
+  totalAmount   Decimal @map("total_amount") @db.Decimal(12, 2)
+
+  purchaseDate  DateTime      @default(now()) @map("purchase_date")
+  paymentStatus PaymentStatus @default(PENDING) @map("payment_status")
+
+  invoiceUrl String? @map("invoice_url")
+  remarks    String?
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  asset     Asset     @relation(fields: [assetId], references: [id], onDelete: Restrict)
+  vendor    Vendor    @relation(fields: [vendorId], references: [id], onDelete: Restrict)
+  createdBy User      @relation(fields: [createdById], references: [id], onDelete: Restrict)
+  payments  Payment[]
+
+  @@index([assetId])
+  @@index([vendorId])
+  @@index([createdById])
+  @@index([purchaseDate])
+  @@index([paymentStatus])
+  @@map("asset_purchases")
+}

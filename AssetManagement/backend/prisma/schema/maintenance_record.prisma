@@ -1,0 +1,33 @@
+model MaintenanceRecord {
+  id String @id @default(uuid()) @db.Uuid
+
+  assetId      String  @db.Uuid
+  reportedById String  @db.Uuid
+  vendorId     String? @db.Uuid
+
+  issue       String
+  description String?
+  serviceCost Decimal @default(0) @db.Decimal(12, 2)
+
+  status MaintenanceStatus @default(REPORTED)
+
+  startedAt   DateTime?
+  completedAt DateTime?
+
+  remarks String?
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  asset      Asset   @relation(fields: [assetId], references: [id], onDelete: Restrict)
+  reportedBy User    @relation("MaintenanceReportedBy", fields: [reportedById], references: [id], onDelete: Restrict)
+  vendor     Vendor? @relation(fields: [vendorId], references: [id], onDelete: SetNull)
+
+  @@index([assetId])
+  @@index([reportedById])
+  @@index([vendorId])
+  @@index([status])
+  @@index([startedAt])
+  @@map("maintenance_records")
+}

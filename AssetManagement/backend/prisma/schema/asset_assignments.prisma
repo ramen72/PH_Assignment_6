@@ -1,0 +1,28 @@
+model AssetAssignment {
+  id String @id @default(uuid()) @db.Uuid
+
+  assetId      String @db.Uuid
+  employeeId   String @db.Uuid
+  assignedById String @db.Uuid
+
+  assignedAt DateTime  @default(now())
+  returnedAt DateTime?
+
+  returnCondition AssetCondition?
+  remarks         String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  asset      Asset @relation(fields: [assetId], references: [id], onDelete: Restrict)
+  employee   User  @relation("EmployeeAssignments", fields: [employeeId], references: [id], onDelete: Restrict)
+  assignedBy User  @relation("AssignedBy", fields: [assignedById], references: [id], onDelete: Restrict)
+
+  @@index([assetId])
+  @@index([employeeId])
+  @@index([assignedById])
+  @@index([assignedAt])
+  @@index([returnedAt])
+  @@map("asset_assignments")
+}

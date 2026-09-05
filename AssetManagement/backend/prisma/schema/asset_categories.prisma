@@ -1,0 +1,14 @@
+model AssetCategory {
+  id          String  @id @default(uuid()) @db.Uuid
+  name        String  @unique
+  description String?
+
+  // Relations
+  assets        Asset[]
+  assetRequests AssetRequest[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("asset_categories")
+}

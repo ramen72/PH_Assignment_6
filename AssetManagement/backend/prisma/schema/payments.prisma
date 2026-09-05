@@ -1,0 +1,30 @@
+model Payment {
+  id String @id @default(uuid()) @db.Uuid
+
+  userId     String @db.Uuid
+  purchaseId String @db.Uuid
+
+  amount   Decimal @db.Decimal(12, 2)
+  currency String  @default("BDT")
+
+  provider      PaymentProvider
+  transactionId String          @unique @map("transaction_id")
+  paymentStatus PaymentStatus   @default(PENDING) @map("payment_status")
+
+  paymentUrl String?   @map("payment_url")
+  paidAt     DateTime? @map("paid_at")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  user     User          @relation(fields: [userId], references: [id], onDelete: Restrict)
+  purchase AssetPurchase @relation(fields: [purchaseId], references: [id], onDelete: Restrict)
+
+  @@index([userId])
+  @@index([purchaseId])
+  @@index([provider])
+  @@index([paymentStatus])
+  @@index([paidAt])
+  @@map("payments")
+}

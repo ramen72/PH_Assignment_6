@@ -1,0 +1,33 @@
+model AssetRequest {
+  id String @id @default(uuid()) @db.Uuid
+
+  employeeId       String  @db.Uuid
+  categoryId       String  @db.Uuid
+  requestedAssetId String? @db.Uuid
+
+  quantity Int                @default(1)
+  reason   String
+  status   AssetRequestStatus @default(PENDING)
+
+  reviewedById    String?   @db.Uuid
+  reviewedAt      DateTime?
+  rejectionReason String?
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  employee   User  @relation("EmployeeRequests", fields: [employeeId], references: [id], onDelete: Restrict)
+  reviewedBy User? @relation("RequestReviewer", fields: [reviewedById], references: [id], onDelete: SetNull)
+
+  category AssetCategory @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+
+  requestedAsset Asset? @relation(fields: [requestedAssetId], references: [id], onDelete: SetNull)
+
+  @@index([employeeId])
+  @@index([categoryId])
+  @@index([requestedAssetId])
+  @@index([reviewedById])
+  @@index([status])
+  @@index([createdAt])
+  @@map("asset_requests")
+}

@@ -1,0 +1,68 @@
+enum UserRole {
+  ADMIN
+  MANAGER
+  EMPLOYEE
+}
+
+enum AuthProvider {
+  EMAIL
+  GOOGLE
+}
+
+enum AssetCondition {
+  NEW
+  GOOD
+  FAIR
+  POOR
+  DAMAGED
+}
+
+enum AssetStatus {
+  AVAILABLE
+  ASSIGNED
+  UNDER_MAINTENANCE
+  LOST
+  DAMAGED
+  RETIRED
+  DISPOSED
+}
+
+enum AssetRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+  FULFILLED
+}
+
+enum MaintenanceStatus {
+  REPORTED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  PARTIAL
+  FAILED
+  REFUNDED
+}
+
+enum PaymentProvider {
+  BKASH
+  STRIPE
+  SSLCOMMERZ
+}
+
+enum NotificationType {
+  ASSET_ASSIGNED
+  ASSET_RETURNED
+  ASSET_REQUEST
+  REQUEST_APPROVED
+  REQUEST_REJECTED
+  MAINTENANCE
+  PAYMENT
+  SYSTEM
+}

@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+  <title>Welcome to <%= appName %></title>
+
+  <style>
+    /* Email Client Reset */
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #f4f7fb;
+      font-family: Arial, Helvetica, sans-serif;
+      color: #1f2937;
+    }
+
+    table {
+      border-spacing: 0;
+      border-collapse: collapse;
+    }
+
+    img {
+      border: 0;
+      display: block;
+      max-width: 100%;
+    }
+
+    a {
+      text-decoration: none;
+    }
+
+    .email-wrapper {
+      width: 100%;
+      background-color: #f4f7fb;
+      padding: 40px 15px;
+    }
+
+    .email-container {
+      width: 100%;
+      max-width: 620px;
+      margin: 0 auto;
+      background-color: #ffffff;
+      border-radius: 18px;
+      overflow: hidden;
+    }
+
+    .header {
+      background: linear-gradient(
+        135deg,
+        #2563eb 0%,
+        #4f46e5 50%,
+        #7c3aed 100%
+      );
+      padding: 38px 30px;
+      text-align: center;
+    }
+
+    .logo {
+      color: #ffffff;
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+
+    .header-subtitle {
+      color: #dbeafe;
+      font-size: 14px;
+      margin-top: 8px;
+    }
+
+    .content {
+      padding: 40px 40px 30px;
+    }
+
+    .welcome-icon {
+      width: 70px;
+      height: 70px;
+      line-height: 70px;
+      margin: 0 auto 22px;
+      border-radius: 50%;
+      background-color: #eff6ff;
+      color: #2563eb;
+      font-size: 34px;
+      text-align: center;
+    }
+
+    .title {
+      margin: 0;
+      text-align: center;
+      color: #111827;
+      font-size: 28px;
+      line-height: 36px;
+    }
+
+    .greeting {
+      margin: 25px 0 0;
+      font-size: 16px;
+      line-height: 26px;
+      color: #374151;
+    }
+
+    .highlight {
+      color: #2563eb;
+      font-weight: 700;
+    }
+
+    .message {
+      margin: 15px 0 0;
+      font-size: 15px;
+      line-height: 25px;
+      color: #6b7280;
+    }
+
+    .info-card {
+      margin-top: 28px;
+      background-color: #f8fafc;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 22px;
+    }
+
+    .info-title {
+      margin: 0 0 15px;
+      color: #111827;
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .info-row {
+      padding: 7px 0;
+      font-size: 14px;
+      line-height: 20px;
+    }
+
+    .info-label {
+      color: #6b7280;
+    }
+
+    .info-value {
+      color: #111827;
+      font-weight: 600;
+    }
+
+    .button-wrapper {
+      text-align: center;
+      padding: 30px 0 10px;
+    }
+
+    .button {
+      display: inline-block;
+      background-color: #2563eb;
+      color: #ffffff !important;
+      font-size: 15px;
+      font-weight: 700;
+      padding: 14px 30px;
+      border-radius: 10px;
+    }
+
+    .features {
+      margin-top: 30px;
+    }
+
+    .feature {
+      padding: 15px 0;
+      border-bottom: 1px solid #eef2f7;
+    }
+
+    .feature:last-child {
+      border-bottom: none;
+    }
+
+    .feature-icon {
+      display: inline-block;
+      width: 36px;
+      height: 36px;
+      line-height: 36px;
+      text-align: center;
+      border-radius: 9px;
+      background-color: #eff6ff;
+      color: #2563eb;
+      font-size: 18px;
+      vertical-align: middle;
+      margin-right: 10px;
+    }
+
+    .feature-text {
+      display: inline-block;
+      vertical-align: middle;
+      font-size: 14px;
+      color: #374151;
+    }
+
+    .security-note {
+      margin-top: 25px;
+      padding: 16px;
+      background-color: #fff7ed;
+      border-left: 4px solid #f97316;
+      border-radius: 8px;
+      color: #7c2d12;
+      font-size: 13px;
+      line-height: 20px;
+    }
+
+    .footer {
+      background-color: #f8fafc;
+      text-align: center;
+      padding: 25px 20px;
+    }
+
+    .footer-text {
+      margin: 0;
+      color: #9ca3af;
+      font-size: 12px;
+      line-height: 20px;
+    }
+
+    .support {
+      margin-top: 8px;
+      font-size: 13px;
+    }
+
+    .support a {
+      color: #2563eb;
+      font-weight: 600;
+    }
+
+    @media only screen and (max-width: 600px) {
+      .email-wrapper {
+        padding: 20px 10px;
+      }
+
+      .content {
+        padding: 30px 22px 25px;
+      }
+
+      .header {
+        padding: 30px 20px;
+      }
+
+      .title {
+        font-size: 24px;
+        line-height: 32px;
+      }
+
+      .info-card {
+        padding: 18px;
+      }
+
+      .button {
+        display: block;
+        padding: 14px 20px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <table role="presentation" width="100%" class="email-wrapper">
+    <tr>
+      <td align="center">
+
+        <table
+          role="presentation"
+          width="100%"
+          class="email-container"
+        >
+
+          <!-- Header -->
+          <tr>
+            <td class="header">
+
+              <div class="logo">
+                <%= appName %>
+              </div>
+
+              <div class="header-subtitle">
+                Your trusted healthcare partner
+              </div>
+
+            </td>
+          </tr>
+
+          <!-- Main Content -->
+          <tr>
+            <td class="content">
+
+              <!-- Welcome Icon -->
+              <div class="welcome-icon">
+                ✓
+              </div>
+
+              <!-- Title -->
+              <h1 class="title">
+                Welcome, <%= patientName %>!
+              </h1>
+
+              <!-- Greeting -->
+              <p class="greeting">
+                We're delighted to welcome you to
+                <span class="highlight"><%= appName %></span>.
+              </p>
+
+              <p class="message">
+                Your patient account has been successfully created.
+                You can now securely access your healthcare information,
+                manage appointments, and stay connected with your care team.
+              </p>
+
+              <!-- Patient Information -->
+              <div class="info-card">
+
+                <p class="info-title display-flex justify-start align-items-baseline">
+                  👤 Your Account Information
+                </p>
+
+                <table role="presentation" width="100%">
+
+                  <tr>
+                    <td class="info-row">
+                      <span class="info-label">Patient Name:</span>
+                      <span class="info-value">
+                        <%= patientName %>
+                      </span>
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td class="info-row">
+                      <span class="info-label">Email:</span>
+                      <span class="info-value">
+                        <%= email %>
+                      </span>
+                    </td>
+                  </tr>
+
+                </table>
+
+              </div>
+
+              <!-- Login Button -->
+              <div class="button-wrapper">
+
+                <a
+                  href="<%= loginUrl %>"
+                  class="button"
+                  target="_blank"
+                >
+                  Access My Account →
+                </a>
+
+              </div>
+
+              <!-- Features -->
+              <div class="features">
+
+                <div class="feature">
+
+                  <span class="feature-icon">📅</span>
+
+                  <span class="feature-text">
+                    Manage your appointments easily
+                  </span>
+
+                </div>
+
+                <div class="feature">
+
+                  <span class="feature-icon">🔒</span>
+
+                  <span class="feature-text">
+                    Keep your healthcare information secure
+                  </span>
+
+                </div>
+
+                <div class="feature">
+
+                  <span class="feature-icon">💙</span>
+
+                  <span class="feature-text">
+                    Stay connected with your healthcare team
+                  </span>
+
+                </div>
+
+              </div>
+
+              <!-- Security Notice -->
+              <div class="security-note">
+
+                <strong>Security reminder:</strong>
+                Never share your password or account credentials with anyone.
+                If you did not create this account, please contact our support
+                team immediately.
+
+              </div>
+
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td class="footer">
+
+              <p class="footer-text">
+                © <%= currentYear %> <%= appName %>. All rights reserved.
+              </p>
+
+              <p class="footer-text support">
+                Need help?
+                <a href="mailto:<%= supportEmail %>">
+                  Contact Support
+                </a>
+              </p>
+
+              <p class="footer-text" style="margin-top: 12px;">
+                This is an automated email. Please do not reply directly
+                to this message.
+              </p>
+
+            </td>
+          </tr>
+
+        </table>
+
+      </td>
+    </tr>
+  </table>
+
+</body>
+</html>
