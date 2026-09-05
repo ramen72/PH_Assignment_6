@@ -26,6 +26,7 @@ export const RegisterZodSchema = z.object({
 		})
 		.optional(),
 });
+
 export const PatientEmailVerifyZodSchema = z.object({
 	email: z.email("Need a valid email.!"),
 	otp: z.string().length(6),

@@ -5,9 +5,9 @@ import { sendResponse } from "../../utils/sendResponse";
 import type { IRequestUser } from "./auth.interface";
 import { AuthService } from "./auth.service";
 
-const registerPatient = catchAsync(async (req: Request, res: Response) => {
+const userRegister = catchAsync(async (req: Request, res: Response) => {
 	const payload = req.body;
-	await AuthService.registerPatient(payload);
+	await AuthService.userRegisterService(payload);
 	sendResponse(res, {
 		statusCode: httpStatus.CREATED,
 		success: true,
@@ -16,24 +16,13 @@ const registerPatient = catchAsync(async (req: Request, res: Response) => {
 		data: {},
 	});
 });
+
+/*
 const verifyPatientEmail = catchAsync(async (req: Request, res: Response) => {
 	const payload = req.body;
 	const result = await AuthService.verifyPatientEmail(payload);
 
 	const { accessToken, refreshToken, user, patient } = result;
-
-	// res.cookie("accessToken", accessToken, {
-	// 	httpOnly: true,
-	// 	secure: false,
-	// 	sameSite: "none",
-	// 	maxAge: 1000 * 60 * 60 * 24, // 24 hour or 1 day
-	// });
-	// res.cookie("refreshToken", refreshToken, {
-	// 	httpOnly: true,
-	// 	secure: false,
-	// 	sameSite: "none",
-	// 	maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
-	// });
 
 	sendResponse(res, {
 		statusCode: httpStatus.CREATED,
@@ -184,9 +173,10 @@ const resetPasswordController = catchAsync(
 		});
 	},
 );
-
+*/
 export const AuthController = {
-	registerPatient,
+	userRegister,
+	/*
 	verifyPatientEmail,
 	loginUser,
 	getMe,
@@ -194,4 +184,5 @@ export const AuthController = {
 	googleLoginController,
 	forgotPasswordController,
 	resetPasswordController,
+	*/
 };

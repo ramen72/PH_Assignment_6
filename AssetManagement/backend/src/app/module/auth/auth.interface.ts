@@ -38,3 +38,26 @@ export interface IResetPasswordPayload {
 	otp: string;
 	newPassword: string;
 }
+
+// ========================================
+export interface IUserRegisterPayload {
+  name: string;
+  email: string;
+  password: string;
+  phone?: string;
+  department?: string;
+  designation?: string;
+
+  profile?: {
+    bio?: string;
+    address?: string;
+    city?: string;
+    postalCode?: string;
+    country?: string;
+    dateOfBirth?: string;
+    emergencyContactName?: string;
+    emergencyContactPhone?: string;
+    joiningDate?: string;
+    employeeId?: string;
+  };
+}

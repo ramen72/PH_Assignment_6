@@ -16,9 +16,10 @@ const router = Router();
 router.post(
 	"/register",
 	validateRequest(RegisterZodSchema),
-	AuthController.registerPatient,
+	AuthController.userRegister,
 );
 
+/*
 router.post(
 	"/verifyEmail",
 	validateRequest(PatientEmailVerifyZodSchema),
@@ -47,4 +48,6 @@ router.post(
 	validateRequest(ResetPasswordZodSchema),
 	AuthController.resetPasswordController,
 );
+
+*/
 export const AuthRoutes = router;

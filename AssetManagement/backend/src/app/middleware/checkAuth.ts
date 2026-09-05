@@ -1,13 +1,13 @@
 import type { NextFunction, Request, Response } from "express";
 import httpStatus from "http-status";
 import type { JwtPayload } from "jsonwebtoken";
+import { type UserRole, UserStatus } from "../../generated/prisma/enums";
 import config from "../config";
 import { prisma } from "../lib/prisma";
 import type { IRequestUser } from "../module/auth/auth.interface";
 import { AppError } from "../utils/AppError";
 import { catchAsync } from "../utils/catchAsync";
 import { jwtUtils } from "../utils/jwt";
-import { UserRole, UserStatus } from "../../generated/prisma/enums";
 
 declare global {
 	namespace Express {
