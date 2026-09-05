@@ -2,6 +2,7 @@ model User {
   id           String  @id @default(uuid()) @db.Uuid
   name         String
   email        String  @unique
+  emailVerified Boolean @default(false)
   password     String?
   profileImage String?
   phone        String?
@@ -9,13 +10,22 @@ model User {
   designation  String?
 
   role         UserRole     @default(EMPLOYEE)
+  status       UserStatus   @default(ACTIVE)
+  
   authProvider AuthProvider @default(EMAIL)
   googleId     String?      @unique
 
   isActive Boolean @default(true)
+  needPasswordChange Boolean @default(false)
+
+  isDeleted Boolean   @default(false)
+  deletedAt DateTime?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+ // Profile
+  profile UserProfile?
 
   // Relations
   assetAssignments AssetAssignment[] @relation("EmployeeAssignments")

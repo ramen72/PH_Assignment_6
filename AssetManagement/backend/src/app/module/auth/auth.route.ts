@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { Role } from "../../../generated/prisma/enums";
+import { UserRole } from "../../../generated/prisma/enums";
 import { auth } from "../../middleware/checkAuth";
 import { validateRequest } from "../../middleware/validateRequest";
 import { AuthController } from "./auth.controller";
@@ -18,6 +18,7 @@ router.post(
 	validateRequest(RegisterZodSchema),
 	AuthController.registerPatient,
 );
+
 router.post(
 	"/verifyEmail",
 	validateRequest(PatientEmailVerifyZodSchema),
@@ -30,7 +31,7 @@ router.post(
 );
 router.get(
 	"/me",
-	auth(Role.ADMIN, Role.DOCTOR, Role.PATIENT, Role.SUPER_ADMIN),
+	auth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.MANAGER, UserRole.EMPLOYEE),
 	// validateRequest (if needed)
 	AuthController.getMe,
 );

@@ -1,5 +1,5 @@
 import bcrypt from "bcryptjs";
-import { Role } from "../../generated/prisma/enums";
+import { UserRole } from "../../generated/prisma/enums";
 import config from "../config";
 import { prisma } from "../lib/prisma";
 
@@ -7,7 +7,7 @@ export const seedSuperAdmin = async () => {
 	try {
 		const isSuperAdmin = await prisma.user.findFirst({
 			where: {
-				role: Role.SUPER_ADMIN,
+				role: UserRole.SUPER_ADMIN,
 			},
 		});
 
@@ -36,7 +36,7 @@ export const seedSuperAdmin = async () => {
 				name,
 				email,
 				password: hashedPassword,
-				role: Role.SUPER_ADMIN,
+				role: UserRole.SUPER_ADMIN,
 				needPasswordChange: false,
 				emailVerified: true,
 			},
@@ -87,7 +87,7 @@ export const seedTesterAdmin = async () => {
 				name,
 				email,
 				password: hashedPassword,
-				role: Role.ADMIN,
+				role: UserRole.ADMIN,
 				needPasswordChange: false,
 				emailVerified: true,
 			},
@@ -138,7 +138,7 @@ export const seedTesterDoctor = async () => {
 				name,
 				email,
 				password: hashedPassword,
-				role: Role.ADMIN,
+				role: UserRole.ADMIN,
 				needPasswordChange: false,
 				emailVerified: true,
 				doctor: {
