@@ -3,19 +3,25 @@ import path from "node:path";
 
 import bcrypt from "bcryptjs";
 import ejs from "ejs";
+import type { TokenPayload } from "google-auth-library";
+import type { SignOptions } from "jsonwebtoken";
 
-import config from "../../config";
-import { prisma } from "../../lib/prisma";
-import { redisClient } from "../../lib/redis";
-import { IUserRegisterPayload, IVerifyEmailPayload } from "./auth.interface";
-import { sendEmail } from "../../lib/sendMail";
-import { jwtUtils } from "../../utils/jwt";
-import { SignOptions } from "jsonwebtoken";
 import {
 	AuthProvider,
 	UserRole,
 	UserStatus,
 } from "../../../generated/prisma/enums";
+import config from "../../config";
+import { googleClient } from "../../lib/googleAuth";
+import { prisma } from "../../lib/prisma";
+import { redisClient } from "../../lib/redis";
+import { sendEmail } from "../../lib/sendMail";
+import { jwtUtils } from "../../utils/jwt";
+import type {
+	IGoogleLoginPayload,
+	IUserRegisterPayload,
+	IVerifyEmailPayload,
+} from "./auth.interface";
 
 const userRegisterService = async (payload: IUserRegisterPayload) => {
 	const { name, password, phone, department, designation, profile } = payload;
@@ -299,7 +305,228 @@ const verifyUserEmailService = async (payload: IVerifyEmailPayload) => {
 	};
 };
 
+export const googleLoginService = async (payload: IGoogleLoginPayload) => {
+	let googleIdTokenPayload: TokenPayload | null | undefined = null;
+
+	// ==========================================
+	// 1. Verify Google ID Token
+	// ==========================================
+	try {
+		const ticket = await googleClient.verifyIdToken({
+			idToken: payload.idToken,
+			audience: config.google_client_id,
+		});
+
+		googleIdTokenPayload = ticket.getPayload();
+	} catch (error) {
+		console.error("Google ID Token Verification Failed:", error);
+
+		throw new Error("Invalid or expired Google ID Token.");
+	}
+
+	// ==========================================
+	// 2. Validate Google Payload
+	// ==========================================
+	if (!googleIdTokenPayload) {
+		throw new Error("Google ID Token payload not found.");
+	}
+
+	if (!googleIdTokenPayload.sub) {
+		throw new Error("Google User ID not found.");
+	}
+
+	if (!googleIdTokenPayload.email) {
+		throw new Error("Google email not found.");
+	}
+
+	if (!googleIdTokenPayload.name) {
+		throw new Error("Google name not found.");
+	}
+
+	if (googleIdTokenPayload.email_verified !== true) {
+		throw new Error("Google email is not verified.");
+	}
+
+	const email = googleIdTokenPayload.email.trim().toLowerCase();
+
+	const googleId = googleIdTokenPayload.sub;
+	const name = googleIdTokenPayload.name;
+
+	// ==========================================
+	// 3. Find Existing User by Email
+	// ==========================================
+	const existingUser = await prisma.user.findUnique({
+		where: {
+			email,
+		},
+	});
+
+	let user: any = null;
+
+	// ==========================================
+	// 4. Existing User
+	// ==========================================
+	if (existingUser) {
+		// ------------------------------------------
+		// Check Role
+		// ------------------------------------------
+		if (existingUser.role !== UserRole.EMPLOYEE) {
+			throw new Error("This email is not registered as an employee.");
+		}
+
+		// ------------------------------------------
+		// Check Deleted
+		// ------------------------------------------
+		if (existingUser.isDeleted || existingUser.status === UserStatus.DELETED) {
+			throw new Error("User is deleted.");
+		}
+
+		// ------------------------------------------
+		// Check Blocked
+		// ------------------------------------------
+		if (existingUser.status === UserStatus.BLOCKED) {
+			throw new Error("User is blocked.");
+		}
+
+		// ==========================================
+		// Existing Google User
+		// ==========================================
+		if (existingUser.googleId) {
+			// Different Google account using same email
+			if (existingUser.googleId !== googleId) {
+				throw new Error(
+					"This email is already linked with another Google account.",
+				);
+			}
+
+			user = existingUser;
+		}
+
+		// ==========================================
+		// Existing Email/Password User
+		// ==========================================
+		else {
+			// Email/password account must be verified
+			if (!existingUser.emailVerified) {
+				throw new Error(
+					"User email is not verified. Please verify your email first.",
+				);
+			}
+
+			// Link Google account
+			user = await prisma.user.update({
+				where: {
+					id: existingUser.id,
+				},
+				data: {
+					googleId,
+				},
+			});
+		}
+	}
+
+	// ==========================================
+	// 5. New Google User Registration
+	// ==========================================
+	else {
+		user = await prisma.user.create({
+			data: {
+				name,
+				email,
+				emailVerified: true,
+				googleId,
+				authProvider: AuthProvider.GOOGLE,
+				role: UserRole.EMPLOYEE,
+				status: UserStatus.ACTIVE,
+				profile: {
+					create: {
+						country: "Bangladesh",
+					},
+				},
+			},
+		});
+
+		// ========================================
+		// Send Welcome Email
+		// ========================================
+		const templatePath = path.join(
+			process.cwd(),
+			"src/app/templates/user-welcome-email.ejs",
+		);
+
+		const templateData = {
+			userName: user.name,
+			email: user.email,
+			loginUrl: `${config.frontend_url}/login`,
+			supportEmail: "support@gmail.com",
+			appName: "RB Healthcare",
+			currentYear: new Date().getFullYear(),
+		};
+
+		const html = await ejs.renderFile(templatePath, templateData);
+
+		await sendEmail({
+			to: user.email,
+			subject: "Welcome to RB Healthcare System",
+			text: `Welcome to RB Healthcare System, ${user.name}.`,
+			html,
+		});
+	}
+
+	// ==========================================
+	// 6. Final User Validation
+	// ==========================================
+	if (!user) {
+		throw new Error("User not found.");
+	}
+
+	if (user.status === UserStatus.BLOCKED) {
+		throw new Error("User is blocked.");
+	}
+
+	if (user.isDeleted || user.status === UserStatus.DELETED) {
+		throw new Error("User is deleted.");
+	}
+
+	// ==========================================
+	// 7. Create JWT Payload
+	// ==========================================
+	const jwtPayload = {
+		userId: user.id,
+		name: user.name,
+		email: user.email,
+		role: user.role,
+	};
+
+	// ==========================================
+	// 8. Access Token
+	// ==========================================
+	const accessToken = jwtUtils.createToken(
+		jwtPayload,
+		config.jwt_access_secret,
+		config.jwt_access_expires_in as SignOptions,
+	);
+
+	// ==========================================
+	// 9. Refresh Token
+	// ==========================================
+	const refreshToken = jwtUtils.createToken(
+		jwtPayload,
+		config.jwt_refresh_secret,
+		config.jwt_refresh_expires_in as SignOptions,
+	);
+
+	// ==========================================
+	// 10. Return Tokens
+	// ==========================================
+	return {
+		accessToken,
+		refreshToken,
+	};
+};
+
 export const AuthService = {
 	userRegisterService,
 	verifyUserEmailService,
+	googleLoginService,
 };

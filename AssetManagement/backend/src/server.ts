@@ -1,14 +1,14 @@
 import app from "./app";
 import config from "./app/config";
-import { deleteRejectedDoctors, deleteUnverifiedDoctors } from "./app/lib/cron";
+// import { deleteRejectedDoctors, deleteUnverifiedDoctors } from "./app/lib/cron";
 import { prisma } from "./app/lib/prisma";
 import { redisClient } from "./app/lib/redis";
 import { transporter } from "./app/lib/sendMail";
-import {
-	seedSuperAdmin,
-	seedTesterAdmin,
-	seedTesterDoctor,
-} from "./app/utils/seed";
+// import {
+// 	seedSuperAdmin,
+// 	seedTesterAdmin,
+// 	seedTesterDoctor,
+// } from "./app/utils/seed";
 
 const PORT = config.port;
 
@@ -30,7 +30,7 @@ const main = async () => {
 		// await deleteRejectedDoctors();
 
 		app.listen(PORT, () => {
-			console.log(`Server is running on port ${PORT}`);
+			console.log(`Server is running on port http://localhost:${PORT}`);
 		});
 	} catch (error) {
 		console.error("Error starting the server:", error);
