@@ -6,6 +6,7 @@ import ejs from "ejs";
 import type { TokenPayload } from "google-auth-library";
 import type { SignOptions } from "jsonwebtoken";
 
+import httpStatus from 'http-status';
 import {
 	AuthProvider,
 	UserRole,
@@ -18,10 +19,12 @@ import { redisClient } from "../../lib/redis";
 import { sendEmail } from "../../lib/sendMail";
 import { jwtUtils } from "../../utils/jwt";
 import type {
+  IForgotPasswordPayload,
 	IGoogleLoginPayload,
 	IUserRegisterPayload,
 	IVerifyEmailPayload,
 } from "./auth.interface";
+import { AppError } from "../../utils/AppError";
 
 const userRegisterService = async (payload: IUserRegisterPayload) => {
 	const { name, password, phone, department, designation, profile } = payload;
@@ -36,7 +39,7 @@ const userRegisterService = async (payload: IUserRegisterPayload) => {
 	});
 
 	if (isUserExists) {
-		throw new Error("User with this email already exists");
+		throw new AppError(httpStatus.CONFLICT,"User with this email already exists");
 	}
 
 	// Hash password
@@ -134,15 +137,15 @@ const verifyUserEmailService = async (payload: IVerifyEmailPayload) => {
 	});
 
 	if (existingUser?.emailVerified) {
-		throw new Error("Email already verified.");
+		throw new AppError(httpStatus.CONFLICT,"Email already verified.");
 	}
 
 	if (existingUser?.status === UserStatus.BLOCKED) {
-		throw new Error("User is Blocked.");
+		throw new AppError(httpStatus.FORBIDDEN,"User is Blocked.");
 	}
 
 	if (existingUser?.status === UserStatus.DELETED) {
-		throw new Error("User is Deleted.");
+		throw new AppError(httpStatus.GONE,"User is Deleted.");
 	}
 
 	// ==============================
@@ -154,11 +157,11 @@ const verifyUserEmailService = async (payload: IVerifyEmailPayload) => {
 	const redisOtp = await redisClient.get(otpKey);
 
 	if (!redisOtp) {
-		throw new Error("Either the OTP was not generated, or it has expired.");
+		throw new AppError(httpStatus.UNAUTHORIZED,"Either the OTP was not generated, or it has expired.");
 	}
 
 	if (redisOtp !== otp) {
-		throw new Error("Invalid OTP.");
+		throw new AppError(httpStatus.UNAUTHORIZED,"Invalid OTP.");
 	}
 
 	// Delete OTP after successful verification
@@ -173,7 +176,7 @@ const verifyUserEmailService = async (payload: IVerifyEmailPayload) => {
 	const redisUserData = await redisClient.get(userRegistrationKey);
 
 	if (!redisUserData) {
-		throw new Error("User registration data does not exist.");
+		throw new AppError(httpStatus.NOT_FOUND,"User registration data does not exist.");
 	}
 	console.log(redisUserData);
 
@@ -321,30 +324,30 @@ export const googleLoginService = async (payload: IGoogleLoginPayload) => {
 	} catch (error) {
 		console.error("Google ID Token Verification Failed:", error);
 
-		throw new Error("Invalid or expired Google ID Token.");
+		throw new AppError(httpStatus.UNAUTHORIZED,"Invalid or expired Google ID Token.");
 	}
 
 	// ==========================================
 	// 2. Validate Google Payload
 	// ==========================================
 	if (!googleIdTokenPayload) {
-		throw new Error("Google ID Token payload not found.");
+		throw new AppError(httpStatus.NOT_FOUND,"Google ID Token payload not found.");
 	}
 
 	if (!googleIdTokenPayload.sub) {
-		throw new Error("Google User ID not found.");
+		throw new AppError(httpStatus.NOT_FOUND,"Google User ID not found.");
 	}
 
 	if (!googleIdTokenPayload.email) {
-		throw new Error("Google email not found.");
+		throw new AppError(httpStatus.NOT_FOUND,"Google email not found.");
 	}
 
 	if (!googleIdTokenPayload.name) {
-		throw new Error("Google name not found.");
+		throw new AppError(httpStatus.NOT_FOUND,"Google name not found.");
 	}
 
 	if (googleIdTokenPayload.email_verified !== true) {
-		throw new Error("Google email is not verified.");
+		throw new AppError(httpStatus.UNAUTHORIZED,"Google email is not verified.");
 	}
 
 	const email = googleIdTokenPayload.email.trim().toLowerCase();
@@ -371,21 +374,21 @@ export const googleLoginService = async (payload: IGoogleLoginPayload) => {
 		// Check Role
 		// ------------------------------------------
 		if (existingUser.role !== UserRole.EMPLOYEE) {
-			throw new Error("This email is not registered as an employee.");
+			throw new AppError(httpStatus.UNAUTHORIZED,"This email is not registered as an employee.");
 		}
 
 		// ------------------------------------------
 		// Check Deleted
 		// ------------------------------------------
 		if (existingUser.isDeleted || existingUser.status === UserStatus.DELETED) {
-			throw new Error("User is deleted.");
+			throw new AppError(httpStatus.GONE,"User is deleted.");
 		}
 
 		// ------------------------------------------
 		// Check Blocked
 		// ------------------------------------------
 		if (existingUser.status === UserStatus.BLOCKED) {
-			throw new Error("User is blocked.");
+			throw new AppError(httpStatus.FORBIDDEN,"User is blocked.");
 		}
 
 		// ==========================================
@@ -394,7 +397,7 @@ export const googleLoginService = async (payload: IGoogleLoginPayload) => {
 		if (existingUser.googleId) {
 			// Different Google account using same email
 			if (existingUser.googleId !== googleId) {
-				throw new Error(
+				throw new AppError(httpStatus.CONFLICT,
 					"This email is already linked with another Google account.",
 				);
 			}
@@ -408,7 +411,7 @@ export const googleLoginService = async (payload: IGoogleLoginPayload) => {
 		else {
 			// Email/password account must be verified
 			if (!existingUser.emailVerified) {
-				throw new Error(
+				throw new AppError(httpStatus.FORBIDDEN,
 					"User email is not verified. Please verify your email first.",
 				);
 			}
@@ -477,15 +480,15 @@ export const googleLoginService = async (payload: IGoogleLoginPayload) => {
 	// 6. Final User Validation
 	// ==========================================
 	if (!user) {
-		throw new Error("User not found.");
+		throw new AppError(httpStatus.NOT_FOUND,"User not found.");
 	}
 
 	if (user.status === UserStatus.BLOCKED) {
-		throw new Error("User is blocked.");
+		throw new AppError(httpStatus.UNAUTHORIZED,"User is blocked.");
 	}
 
 	if (user.isDeleted || user.status === UserStatus.DELETED) {
-		throw new Error("User is deleted.");
+		throw new AppError(httpStatus.GONE,"User is deleted.");
 	}
 
 	// ==========================================
@@ -523,6 +526,96 @@ export const googleLoginService = async (payload: IGoogleLoginPayload) => {
 		accessToken,
 		refreshToken,
 	};
+};
+
+export const forgotPasswordService = async (
+	payload: IForgotPasswordPayload,
+) => {
+	const { email } = payload;
+
+	// Find user
+	const user = await prisma.user.findUnique({
+		where: {
+			email,
+		},
+	});
+
+	// User does not exist
+	if (!user) {
+		throw new AppError(httpStatus.NOT_FOUND,"User does not exist!");
+	}
+
+	// User is blocked
+	if (user.status === UserStatus.BLOCKED) {
+		throw new AppError(httpStatus.UNAUTHORIZED,"User is blocked!");
+	}
+
+	// User is deleted
+	if (user.status === UserStatus.DELETED || user.isDeleted) {
+		throw new AppError(httpStatus.GONE,"User is deleted!");
+	}
+
+	// User is inactive
+	if (!user.isActive) {
+		throw new AppError(httpStatus.FORBIDDEN,"User account is inactive!");
+	}
+
+	// Email is not verified
+	if (!user.emailVerified) {
+		throw new AppError(httpStatus.FORBIDDEN,"User email is not verified!");
+	}
+
+	// Google account cannot use normal password reset
+	if (user.googleId || user.authProvider === AuthProvider.GOOGLE) {
+		throw new AppError(httpStatus.FORBIDDEN,
+			"Password reset is not available for Google accounts!",
+		);
+	}
+
+	// Generate 6 digit OTP
+	const otp = crypto.randomInt(100000, 1000000).toString();
+
+	// Redis key
+	const key = `forgot-password-otp:${user.email}`;
+
+	// OTP expiration: 5 minutes
+	const expirationTime = 60 * 5;
+
+	// Store OTP in Redis
+	await redisClient.set(key, otp, {
+		expiration: {
+			type: "EX",
+			value: expirationTime,
+		},
+	});
+
+	// Email template path
+	const templatePath = path.join(
+		process.cwd(),
+		"src/app/templates/forgotPassword.ejs",
+	);
+
+	// Template data
+	const templateData = {
+		name: user.name,
+		expirationTime: expirationTime / 60,
+		currentYear: new Date().getFullYear(),
+		OTP: otp.split(""),
+	};
+
+	// Render email template
+	const html = await ejs.renderFile(
+		templatePath,
+		templateData,
+	);
+
+	// Send OTP email
+	await sendEmail({
+		to: user.email,
+		subject: "Forgot Password's OTP",
+		text: `Your password reset OTP is ${otp}. It will expire in 5 minutes.`,
+		html,
+	});
 };
 
 export const AuthService = {

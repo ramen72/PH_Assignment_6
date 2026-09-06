@@ -21,9 +21,7 @@ export interface IRequestUser {
 	role: UserRole;
 }
 
-export interface IForgotPasswordPayload {
-	email: string;
-}
+
 export interface IResetPasswordPayload {
 	email: string;
 	otp: string;
@@ -60,4 +58,8 @@ export interface IVerifyEmailPayload {
 
 export interface IGoogleLoginPayload {
 	idToken: string;
+}
+
+export interface IForgotPasswordPayload {
+	email: string;
 }
