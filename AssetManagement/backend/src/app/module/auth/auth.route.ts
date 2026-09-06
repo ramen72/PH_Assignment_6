@@ -3,7 +3,7 @@ import { Router } from "express";
 // import { auth } from "../../middleware/checkAuth";
 import { validateRequest } from "../../middleware/validateRequest";
 import { AuthController } from "./auth.controller";
-import { UserEmailVerifyZodSchema, UserRegisterZodSchema } from "./zodSchema";
+import { ForgotPasswordZodSchema, UserEmailVerifyZodSchema, UserRegisterZodSchema } from "./zodSchema";
 
 const router = Router();
 
@@ -19,6 +19,12 @@ router.post(
 	AuthController.verifyUserEmail,
 );
 router.post("/google", AuthController.googleLoginController);
+
+router.post(
+	"/forgotPassword",
+	validateRequest(ForgotPasswordZodSchema),
+	AuthController.forgotPasswordController,
+);
 /*
 router.post(
 	"/login",
@@ -33,11 +39,7 @@ router.get(
 );
 router.post("/refresh-token", AuthController.refreshToken);
 
-router.post(
-	"/forgotPassword",
-	validateRequest(ForgotPasswordZodSchema),
-	AuthController.forgotPasswordController,
-);
+
 router.post(
 	"/resetPassword",
 	validateRequest(ResetPasswordZodSchema),

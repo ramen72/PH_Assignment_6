@@ -120,7 +120,10 @@ export const LoginZodSchema = z.object({
 });
 
 export const ForgotPasswordZodSchema = z.object({
-	email: z.email("Need a valid email.!"),
+	email: z
+		.string()
+		.trim()
+		.email("Need a valid email.!"),
 });
 
 export const ResetPasswordZodSchema = z.object({

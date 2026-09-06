@@ -622,4 +622,5 @@ export const AuthService = {
 	userRegisterService,
 	verifyUserEmailService,
 	googleLoginService,
+  forgotPasswordService
 };

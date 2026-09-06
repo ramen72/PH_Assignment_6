@@ -68,6 +68,21 @@ const googleLoginController = catchAsync(
 	},
 );
 
+const forgotPasswordController = catchAsync(
+	async (req: Request, res: Response) => {
+		const payload = req.body;
+
+		await AuthService.forgotPasswordService(payload);
+
+		sendResponse(res, {
+			statusCode: httpStatus.OK,
+			success: true,
+			message: `OTP has been sent to your email (${payload.email}) successfully.`,
+			data: {},
+		});
+	},
+);
+
 /*
 const loginUser = catchAsync(async (req: Request, res: Response) => {
 	const payload = req.body;
@@ -145,20 +160,7 @@ const refreshToken = catchAsync(async (req: Request, res: Response) => {
 	});
 });
 
-const forgotPasswordController = catchAsync(
-	async (req: Request, res: Response) => {
-		const payload = req.body;
 
-		await AuthService.forgotPasswordService(payload);
-
-		sendResponse(res, {
-			statusCode: httpStatus.OK,
-			success: true,
-			message: `OTP has been sent to your email (${payload.email}) successfully.`,
-			data: {},
-		});
-	},
-);
 
 const resetPasswordController = catchAsync(
 	async (req: Request, res: Response) => {
@@ -178,11 +180,11 @@ export const AuthController = {
 	userRegister,
 	verifyUserEmail,
 	googleLoginController,
+	forgotPasswordController,
 	/*
 	loginUser,
 	getMe,
 	refreshToken,
-	forgotPasswordController,
 	resetPasswordController,
 	*/
 };
