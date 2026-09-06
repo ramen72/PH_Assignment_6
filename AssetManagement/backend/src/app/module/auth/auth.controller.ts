@@ -7,6 +7,7 @@ import { AuthService } from "./auth.service";
 
 const userRegister = catchAsync(async (req: Request, res: Response) => {
 	const payload = req.body;
+	console.log(payload);
 	await AuthService.userRegisterService(payload);
 	sendResponse(res, {
 		statusCode: httpStatus.CREATED,
@@ -17,12 +18,11 @@ const userRegister = catchAsync(async (req: Request, res: Response) => {
 	});
 });
 
-/*
-const verifyPatientEmail = catchAsync(async (req: Request, res: Response) => {
+const verifyUserEmail = catchAsync(async (req: Request, res: Response) => {
 	const payload = req.body;
-	const result = await AuthService.verifyPatientEmail(payload);
+	const result = await AuthService.verifyUserEmailService(payload);
 
-	const { accessToken, refreshToken, user, patient } = result;
+	const { accessToken, refreshToken, user, profile } = result;
 
 	sendResponse(res, {
 		statusCode: httpStatus.CREATED,
@@ -32,10 +32,12 @@ const verifyPatientEmail = catchAsync(async (req: Request, res: Response) => {
 			accessToken,
 			refreshToken,
 			user,
-			patient,
+			profile,
 		},
 	});
 });
+
+/*
 
 const loginUser = catchAsync(async (req: Request, res: Response) => {
 	const payload = req.body;
@@ -176,8 +178,8 @@ const resetPasswordController = catchAsync(
 */
 export const AuthController = {
 	userRegister,
+	verifyUserEmail,
 	/*
-	verifyPatientEmail,
 	loginUser,
 	getMe,
 	refreshToken,

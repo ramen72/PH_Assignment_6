@@ -1,30 +1,27 @@
 import { Router } from "express";
-import { UserRole } from "../../../generated/prisma/enums";
-import { auth } from "../../middleware/checkAuth";
+// import { UserRole } from "../../../generated/prisma/enums";
+// import { auth } from "../../middleware/checkAuth";
 import { validateRequest } from "../../middleware/validateRequest";
 import { AuthController } from "./auth.controller";
 import {
-	ForgotPasswordZodSchema,
-	LoginZodSchema,
-	PatientEmailVerifyZodSchema,
-	RegisterZodSchema,
-	ResetPasswordZodSchema,
+	UserEmailVerifyZodSchema,
+	UserRegisterZodSchema,
 } from "./zodSchema";
 
 const router = Router();
 
 router.post(
 	"/register",
-	validateRequest(RegisterZodSchema),
+	validateRequest(UserRegisterZodSchema),
 	AuthController.userRegister,
 );
 
-/*
 router.post(
 	"/verifyEmail",
-	validateRequest(PatientEmailVerifyZodSchema),
-	AuthController.verifyPatientEmail,
+	validateRequest(UserEmailVerifyZodSchema),
+	AuthController.verifyUserEmail,
 );
+/*
 router.post(
 	"/login",
 	validateRequest(LoginZodSchema),

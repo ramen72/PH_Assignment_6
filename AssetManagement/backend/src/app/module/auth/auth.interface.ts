@@ -14,11 +14,6 @@ export interface IRegisterPatientPayload {
 	};
 }
 
-export interface IVerifyEmailPayload {
-	email: string;
-	otp: string;
-}
-
 export interface IRequestUser {
 	userId: string;
 	name: string;
@@ -41,23 +36,28 @@ export interface IResetPasswordPayload {
 
 // ========================================
 export interface IUserRegisterPayload {
-  name: string;
-  email: string;
-  password: string;
-  phone?: string;
-  department?: string;
-  designation?: string;
+	name: string;
+	email: string;
+	password: string;
+	phone?: string;
+	department?: string;
+	designation?: string;
 
-  profile?: {
-    bio?: string;
-    address?: string;
-    city?: string;
-    postalCode?: string;
-    country?: string;
-    dateOfBirth?: string;
-    emergencyContactName?: string;
-    emergencyContactPhone?: string;
-    joiningDate?: string;
-    employeeId?: string;
-  };
+	profile?: {
+		bio?: string;
+		address?: string;
+		city?: string;
+		postalCode?: string;
+		country?: string;
+		dateOfBirth?: string;
+		emergencyContactName?: string;
+		emergencyContactPhone?: string;
+		joiningDate?: string;
+		employeeId?: string;
+	};
+}
+
+export interface IVerifyEmailPayload {
+	email: string;
+	otp: string;
 }

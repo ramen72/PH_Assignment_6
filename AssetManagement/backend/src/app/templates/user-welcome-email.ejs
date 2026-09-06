@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -8,7 +9,6 @@
   <title>Welcome to <%= appName %></title>
 
   <style>
-    /* Email Client Reset */
     body {
       margin: 0;
       padding: 0;
@@ -255,181 +255,195 @@
       }
     }
   </style>
+
 </head>
 
 <body>
-
   <table role="presentation" width="100%" class="email-wrapper">
     <tr>
       <td align="center">
 
-        <table
-          role="presentation"
-          width="100%"
-          class="email-container"
-        >
+```
+    <table
+      role="presentation"
+      width="100%"
+      class="email-container"
+    >
 
-          <!-- Header -->
-          <tr>
-            <td class="header">
+      <!-- Header -->
+      <tr>
+        <td class="header">
 
-              <div class="logo">
-                <%= appName %>
-              </div>
+          <div class="logo">
+            <%= appName %>
+          </div>
 
-              <div class="header-subtitle">
-                Your trusted healthcare partner
-              </div>
+          <div class="header-subtitle">
+            Your trusted asset management platform
+          </div>
 
-            </td>
-          </tr>
+        </td>
+      </tr>
 
-          <!-- Main Content -->
-          <tr>
-            <td class="content">
+      <!-- Main Content -->
+      <tr>
+        <td class="content">
 
-              <!-- Welcome Icon -->
-              <div class="welcome-icon">
-                ✓
-              </div>
+          <!-- Welcome Icon -->
+          <div class="welcome-icon">
+            ✓
+          </div>
 
-              <!-- Title -->
-              <h1 class="title">
-                Welcome, <%= patientName %>!
-              </h1>
+          <!-- Title -->
+          <h1 class="title">
+            Welcome, <%= userName %>!
+          </h1>
 
-              <!-- Greeting -->
-              <p class="greeting">
-                We're delighted to welcome you to
-                <span class="highlight"><%= appName %></span>.
-              </p>
+          <!-- Greeting -->
+          <p class="greeting">
+            We're delighted to welcome you to
+            <span class="highlight"><%= appName %></span>.
+          </p>
 
-              <p class="message">
-                Your patient account has been successfully created.
-                You can now securely access your healthcare information,
-                manage appointments, and stay connected with your care team.
-              </p>
+          <p class="message">
+            Your account has been successfully created and your email
+            address has been verified. You can now securely access the
+            system and manage your assigned assets and requests.
+          </p>
 
-              <!-- Patient Information -->
-              <div class="info-card">
+          <!-- Account Information -->
+          <div class="info-card">
 
-                <p class="info-title display-flex justify-start align-items-baseline">
-                  👤 Your Account Information
-                </p>
+            <p class="info-title">
+              👤 Your Account Information
+            </p>
 
-                <table role="presentation" width="100%">
+            <table role="presentation" width="100%">
 
-                  <tr>
-                    <td class="info-row">
-                      <span class="info-label">Patient Name:</span>
-                      <span class="info-value">
-                        <%= patientName %>
-                      </span>
-                    </td>
-                  </tr>
-
-                  <tr>
-                    <td class="info-row">
-                      <span class="info-label">Email:</span>
-                      <span class="info-value">
-                        <%= email %>
-                      </span>
-                    </td>
-                  </tr>
-
-                </table>
-
-              </div>
-
-              <!-- Login Button -->
-              <div class="button-wrapper">
-
-                <a
-                  href="<%= loginUrl %>"
-                  class="button"
-                  target="_blank"
-                >
-                  Access My Account →
-                </a>
-
-              </div>
-
-              <!-- Features -->
-              <div class="features">
-
-                <div class="feature">
-
-                  <span class="feature-icon">📅</span>
-
-                  <span class="feature-text">
-                    Manage your appointments easily
+              <tr>
+                <td class="info-row">
+                  <span class="info-label">
+                    Name:
                   </span>
 
-                </div>
+                  <span class="info-value">
+                    <%= userName %>
+                  </span>
+                </td>
+              </tr>
 
-                <div class="feature">
-
-                  <span class="feature-icon">🔒</span>
-
-                  <span class="feature-text">
-                    Keep your healthcare information secure
+              <tr>
+                <td class="info-row">
+                  <span class="info-label">
+                    Email:
                   </span>
 
-                </div>
-
-                <div class="feature">
-
-                  <span class="feature-icon">💙</span>
-
-                  <span class="feature-text">
-                    Stay connected with your healthcare team
+                  <span class="info-value">
+                    <%= email %>
                   </span>
+                </td>
+              </tr>
 
-                </div>
+            </table>
+          </div>
 
-              </div>
+          <!-- Login Button -->
+          <div class="button-wrapper">
 
-              <!-- Security Notice -->
-              <div class="security-note">
+            <a
+              href="<%= loginUrl %>"
+              class="button"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Access My Account →
+            </a>
 
-                <strong>Security reminder:</strong>
-                Never share your password or account credentials with anyone.
-                If you did not create this account, please contact our support
-                team immediately.
+          </div>
 
-              </div>
+          <!-- Features -->
+          <div class="features">
 
-            </td>
-          </tr>
+            <div class="feature">
+              <span class="feature-icon">
+                💻
+              </span>
 
-          <!-- Footer -->
-          <tr>
-            <td class="footer">
+              <span class="feature-text">
+                Manage your assigned office assets
+              </span>
+            </div>
 
-              <p class="footer-text">
-                © <%= currentYear %> <%= appName %>. All rights reserved.
-              </p>
+            <div class="feature">
+              <span class="feature-icon">
+                📋
+              </span>
 
-              <p class="footer-text support">
-                Need help?
-                <a href="mailto:<%= supportEmail %>">
-                  Contact Support
-                </a>
-              </p>
+              <span class="feature-text">
+                Submit and track asset requests
+              </span>
+            </div>
 
-              <p class="footer-text" style="margin-top: 12px;">
-                This is an automated email. Please do not reply directly
-                to this message.
-              </p>
+            <div class="feature">
+              <span class="feature-icon">
+                🔒
+              </span>
 
-            </td>
-          </tr>
+              <span class="feature-text">
+                Keep your account and asset information secure
+              </span>
+            </div>
 
-        </table>
+          </div>
 
-      </td>
-    </tr>
+          <!-- Security Notice -->
+          <div class="security-note">
+
+            <strong>Security reminder:</strong>
+
+            Never share your password or account credentials with anyone.
+            If you did not create this account, please contact our support
+            team immediately.
+
+          </div>
+
+        </td>
+      </tr>
+
+      <!-- Footer -->
+      <tr>
+        <td class="footer">
+
+          <p class="footer-text">
+            © <%= currentYear %>
+            <%= appName %>. All rights reserved.
+          </p>
+
+          <p class="footer-text support">
+            Need help?
+
+            <a href="mailto:<%= supportEmail %>">
+              Contact Support
+            </a>
+          </p>
+
+          <p
+            class="footer-text"
+            style="margin-top: 12px;"
+          >
+            This is an automated email. Please do not reply directly
+            to this message.
+          </p>
+
+        </td>
+      </tr>
+
+    </table>
+
+  </td>
+</tr>
+```
+
   </table>
-
 </body>
 </html>

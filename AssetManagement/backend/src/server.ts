@@ -17,8 +17,8 @@ const main = async () => {
 		await prisma.$connect();
 		console.log("Database connected to the successfully.");
 
-		// await redisClient.connect();
-		// console.log("REDIS database connected to the successfully.");
+		await redisClient.connect();
+		console.log("REDIS database connected to the successfully.");
 
 		await transporter.verify();
 		console.log("Nodemailer connected successfully.");
