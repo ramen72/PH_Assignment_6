@@ -10,6 +10,8 @@ import {
 	UserEmailVerifyZodSchema,
 	UserRegisterZodSchema,
 } from "./zodSchema";
+import { auth } from "../../middleware/checkAuth";
+import { UserRole } from "../../../generated/prisma/enums";
 
 const router = Router();
 
@@ -41,6 +43,12 @@ router.post(
 	"/login",
 	validateRequest(LoginZodSchema),
 	AuthController.userLogin,
+);
+
+router.post(
+	"/logout",
+	auth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.MANAGER, UserRole.EMPLOYEE),
+	AuthController.userLogout,
 );
 
 /*

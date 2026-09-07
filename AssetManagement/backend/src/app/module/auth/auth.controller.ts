@@ -106,6 +106,9 @@ const userLogin = catchAsync(async (req: Request, res: Response) => {
 
 	const { accessToken, refreshToken } = result;
 
+	console.log(accessToken)
+	console.log(refreshToken)
+
 	// Access Token Cookie
 	res.cookie("accessToken", accessToken, {
 		httpOnly: true,
@@ -127,6 +130,22 @@ const userLogin = catchAsync(async (req: Request, res: Response) => {
 		success: true,
 		message: "User logged in successfully",
 		data: null,
+	});
+});
+
+const userLogout = catchAsync(async (req: Request, res: Response) => {
+	const refreshToken = req.cookies.refreshToken;
+
+	await AuthService.userLogoutService(refreshToken);
+
+	res.clearCookie("accessToken");
+	res.clearCookie("refreshToken");
+
+	sendResponse(res, {
+		statusCode: httpStatus.OK,
+		success: true,
+		message: "User logged out successfully",
+		data: {},
 	});
 });
 
@@ -188,6 +207,7 @@ export const AuthController = {
 	forgotPasswordController,
 	resetPasswordController,
 	userLogin,
+	userLogout,
 	/*
 	getMe,
 	refreshToken,

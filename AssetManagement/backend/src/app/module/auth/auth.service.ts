@@ -805,6 +805,75 @@ const userLoginService = async (payload: ILoginUserPayload) => {
 	};
 };
 
+const userLogoutService = async (refreshToken: string) => {
+	if (!refreshToken) {
+		throw new AppError(
+			httpStatus.BAD_REQUEST,
+			"Refresh token is required",
+		);
+	}
+
+	// Find the refresh token
+	const storedToken = await prisma.refreshToken.findUnique({
+		where: {
+			token: refreshToken,
+		},
+	});
+
+	// Token does not exist
+	if (!storedToken) {
+		throw new AppError(
+			httpStatus.NOT_FOUND,
+			"Refresh token not found",
+		);
+	}
+
+	// Token is already revoked
+	if (storedToken.revokedAt) {
+		throw new AppError(
+			httpStatus.BAD_REQUEST,
+			"Refresh token is already revoked",
+		);
+	}
+
+	// Token is expired
+	if (storedToken.expiresAt <= new Date()) {
+		throw new AppError(
+			httpStatus.UNAUTHORIZED,
+			"Refresh token has expired",
+		);
+	}
+
+	// Revoke refresh token
+	await prisma.refreshToken.update({
+		where: {
+			id: storedToken.id,
+		},
+		data: {
+			revokedAt: new Date(),
+		},
+	});
+
+	return null;
+};
+
+const userLogoutFromAllDevicesService = async (userId: string) => {
+	const result = await prisma.refreshToken.updateMany({
+		where: {
+			userId,
+			revokedAt: null,
+		},
+		data: {
+			revokedAt: new Date(),
+		},
+	});
+
+	return {
+		revokedTokens: result.count,
+	};
+};
+
+
 export const AuthService = {
 	userRegisterService,
 	verifyUserEmailService,
@@ -812,4 +881,6 @@ export const AuthService = {
 	forgotPasswordService,
 	resetPasswordService,
 	userLoginService,
+	userLogoutService,
+	userLogoutFromAllDevicesService
 };
