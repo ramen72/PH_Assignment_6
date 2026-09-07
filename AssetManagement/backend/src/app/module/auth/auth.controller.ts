@@ -3,6 +3,7 @@ import httpStatus from "http-status";
 import { catchAsync } from "../../utils/catchAsync";
 import { sendResponse } from "../../utils/sendResponse";
 import { AuthService } from "./auth.service";
+import config from "../../config";
 
 const userRegister = catchAsync(async (req: Request, res: Response) => {
 	const payload = req.body;
@@ -21,15 +22,16 @@ const verifyUserEmail = catchAsync(async (req: Request, res: Response) => {
 	const payload = req.body;
 	const result = await AuthService.verifyUserEmailService(payload);
 
-	const { accessToken, refreshToken, user, profile } = result;
+	// const { accessToken, refreshToken, user, profile } = result;
+	const { user, profile } = result;
 
 	sendResponse(res, {
 		statusCode: httpStatus.CREATED,
 		success: true,
 		message: "Patient email verification has been done successfully",
 		data: {
-			accessToken,
-			refreshToken,
+			// accessToken,
+			// refreshToken,
 			user,
 			profile,
 		},
@@ -96,22 +98,27 @@ const resetPasswordController = catchAsync(
 		});
 	},
 );
-/*
-const loginUser = catchAsync(async (req: Request, res: Response) => {
+
+const userLogin = catchAsync(async (req: Request, res: Response) => {
 	const payload = req.body;
-	const result = await AuthService.loginUser(payload);
+
+	const result = await AuthService.userLoginService(payload);
+
 	const { accessToken, refreshToken } = result;
 
+	// Access Token Cookie
 	res.cookie("accessToken", accessToken, {
 		httpOnly: true,
-		secure: false,
-		sameSite: "none",
-		maxAge: 1000 * 60 * 60 * 24, // 24 hour or 1 day
+		secure: config.node_env === "production",
+		sameSite: config.node_env === "production" ? "none" : "lax",
+		maxAge: 1000 * 60 * 60, // 1 hour
 	});
+
+	// Refresh Token Cookie
 	res.cookie("refreshToken", refreshToken, {
 		httpOnly: true,
-		secure: false,
-		sameSite: "none",
+		secure: config.node_env === "production",
+		sameSite: config.node_env === "production" ? "none" : "lax",
 		maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
 	});
 
@@ -119,12 +126,11 @@ const loginUser = catchAsync(async (req: Request, res: Response) => {
 		statusCode: httpStatus.OK,
 		success: true,
 		message: "User logged in successfully",
-		data: {
-			accessToken,
-			refreshToken,
-		},
+		data: null,
 	});
 });
+
+/*
 
 const getMe = catchAsync(async (req: Request, res: Response) => {
 	const user = req.user as unknown as IRequestUser;
@@ -181,8 +187,8 @@ export const AuthController = {
 	googleLoginController,
 	forgotPasswordController,
 	resetPasswordController,
+	userLogin,
 	/*
-	loginUser,
 	getMe,
 	refreshToken,
 	*/

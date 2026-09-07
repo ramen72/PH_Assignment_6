@@ -21,11 +21,13 @@ import { jwtUtils } from "../../utils/jwt";
 import type {
 	IForgotPasswordPayload,
 	IGoogleLoginPayload,
+	ILoginUserPayload,
 	IResetPasswordPayload,
 	IUserRegisterPayload,
 	IVerifyEmailPayload,
 } from "./auth.interface";
 import { AppError } from "../../utils/AppError";
+import { getDateFromDuration } from "../../utils/getDateFromDuration";
 
 const userRegisterService = async (payload: IUserRegisterPayload) => {
 	const { name, password, phone, department, designation, profile } = payload;
@@ -151,11 +153,8 @@ const verifyUserEmailService = async (payload: IVerifyEmailPayload) => {
 	if (existingUser?.status === UserStatus.DELETED) {
 		throw new AppError(httpStatus.GONE, "User is Deleted.");
 	}
-
-	// ==============================
+	
 	// Verify OTP
-	// ==============================
-
 	const otpKey = `user-registration-otp:${email}`;
 
 	const redisOtp = await redisClient.get(otpKey);
@@ -173,11 +172,8 @@ const verifyUserEmailService = async (payload: IVerifyEmailPayload) => {
 
 	// Delete OTP after successful verification
 	await redisClient.del(otpKey);
-
-	// ==============================
+	
 	// Get Registration Data
-	// ==============================
-
 	const userRegistrationKey = `user-registration-data:${email}`;
 
 	const redisUserData = await redisClient.get(userRegistrationKey);
@@ -188,14 +184,10 @@ const verifyUserEmailService = async (payload: IVerifyEmailPayload) => {
 			"User registration data does not exist.",
 		);
 	}
-	console.log(redisUserData);
 
 	const userPayload: IUserRegisterPayload = JSON.parse(redisUserData);
 
-	// ==============================
 	// Create User + UserProfile
-	// ==============================
-
 	const createdUser = await prisma.user.create({
 		data: {
 			name: userPayload.name,
@@ -254,10 +246,7 @@ const verifyUserEmailService = async (payload: IVerifyEmailPayload) => {
 	// Delete registration data from Redis
 	await redisClient.del(userRegistrationKey);
 
-	// ==============================
 	// Sending Welcome Email
-	// ==============================
-
 	const templatePath = path.join(
 		process.cwd(),
 		"src/app/templates/user-welcome-email.ejs",
@@ -281,11 +270,10 @@ const verifyUserEmailService = async (payload: IVerifyEmailPayload) => {
 		html,
 	});
 
-	// ==============================
 	// Generate JWT Tokens
-	// ==============================
-
 	const { profile, ...user } = createdUser;
+
+/*
 
 	const jwtPayload = {
 		userId: user.id,
@@ -306,15 +294,25 @@ const verifyUserEmailService = async (payload: IVerifyEmailPayload) => {
 		config.jwt_refresh_expires_in as SignOptions,
 	);
 
-	// ==============================
-	// Return Response
-	// ==============================
+	// Calculate refresh token expiration
+	const refreshTokenExpiresAt = getDateFromDuration(config.jwt_refresh_expires_in)
+	
+	// Store refresh token in database
+	await prisma.refreshToken.create({
+		data: {
+			userId: user.id,
+			token: refreshToken,
+			expiresAt: refreshTokenExpiresAt,
+		},
+	});
+	*/
 
+	// Return Response
 	return {
 		user,
 		profile,
-		accessToken,
-		refreshToken,
+		// accessToken,
+		// refreshToken,
 	};
 };
 
@@ -719,10 +717,99 @@ export const resetPasswordService = async (payload: IResetPasswordPayload) => {
 	return;
 };
 
+const userLoginService = async (payload: ILoginUserPayload) => {
+	const { password } = payload;
+	const email = payload.email.trim().toLowerCase();
+
+	// 1. Find user
+	const user = await prisma.user.findUnique({
+		where: {
+			email,
+		},
+	});
+
+	if (!user) {
+		throw new AppError(httpStatus.NOT_FOUND, "User not found");
+	}
+
+	// 2. Check account status
+	if (user.isDeleted || user.status === UserStatus.DELETED) {
+		throw new AppError(httpStatus.FORBIDDEN, "User account is deleted");
+	}
+
+	if (user.status === UserStatus.BLOCKED) {
+		throw new AppError(httpStatus.FORBIDDEN, "User account is blocked");
+	}
+
+	// 3. Check authentication provider
+	if (!user.password && user.googleId) {
+		throw new AppError(
+			httpStatus.BAD_REQUEST,
+			"User is registered with Google. Please login with Google.",
+		);
+	}
+
+	// 4. Make sure password exists
+	if (!user.password) {
+		throw new AppError(
+			httpStatus.BAD_REQUEST,
+			"Password authentication is not available for this account",
+		);
+	}
+
+	// 5. Compare password
+	const isPasswordMatched = await bcrypt.compare(password, user.password);
+
+	if (!isPasswordMatched) {
+		throw new AppError(httpStatus.UNAUTHORIZED, "Invalid email or password");
+	}
+
+	// 6. JWT payload
+	const jwtPayload = {
+		userId: user.id,
+		name: user.name,
+		email: user.email,
+		role: user.role,
+	};
+
+	// 7. Generate access token
+	const accessToken = jwtUtils.createToken(
+		jwtPayload,
+		config.jwt_access_secret,
+		config.jwt_access_expires_in as SignOptions,
+	);
+
+	// 8. Generate refresh token
+	const refreshToken = jwtUtils.createToken(
+		jwtPayload,
+		config.jwt_refresh_secret,
+		config.jwt_refresh_expires_in as SignOptions,
+	);
+
+	// 9. Calculate refresh token expiration
+	const refreshTokenExpiresAt = getDateFromDuration(config.jwt_refresh_expires_in)
+
+	// 10. Store refresh token in database
+	await prisma.refreshToken.create({
+		data: {
+			userId: user.id,
+			token: refreshToken,
+			expiresAt: refreshTokenExpiresAt,
+		},
+	});
+
+	// 11. Return tokens
+	return {
+		accessToken,
+		refreshToken,
+	};
+};
+
 export const AuthService = {
 	userRegisterService,
 	verifyUserEmailService,
 	googleLoginService,
 	forgotPasswordService,
 	resetPasswordService,
+	userLoginService,
 };

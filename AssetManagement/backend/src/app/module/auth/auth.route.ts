@@ -5,6 +5,7 @@ import { validateRequest } from "../../middleware/validateRequest";
 import { AuthController } from "./auth.controller";
 import {
 	ForgotPasswordZodSchema,
+	LoginZodSchema,
 	ResetPasswordZodSchema,
 	UserEmailVerifyZodSchema,
 	UserRegisterZodSchema,
@@ -36,13 +37,13 @@ router.post(
 	AuthController.resetPasswordController,
 );
 
-
-/*
 router.post(
 	"/login",
 	validateRequest(LoginZodSchema),
-	AuthController.loginUser,
+	AuthController.userLogin,
 );
+
+/*
 router.get(
 	"/me",
 	auth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.MANAGER, UserRole.EMPLOYEE),

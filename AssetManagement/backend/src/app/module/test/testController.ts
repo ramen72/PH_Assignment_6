@@ -4,6 +4,7 @@ import httpStatus from "http-status";
 import z, { email } from "zod";
 import { getBkashIdToken } from "../../lib/bkash";
 import { redisClient } from "../../lib/redis";
+import config from "../../config";
 
 const testOne = async (req: Request, res: Response, next: NextFunction) => {
 	try {
@@ -81,10 +82,44 @@ const testFour = async (req: Request, res: Response, next: NextFunction) => {
 		next(error);
 	}
 };
+const testFive = async (req: Request, res: Response, next: NextFunction) => {
+	try {
+		const getDateFromDuration = (expiresIn: string): Date => {
+			console.log(expiresIn);
+
+			const match = expiresIn.match(/^(\d+)([smhd])$/);
+			if (!match) {
+				throw new Error(`Invalid expiration format: ${expiresIn}`);
+			}
+			const value = Number(match[1]);
+			const unit = match[2];
+			const unitInMilliseconds: Record<string, number> = {
+				s: 1000,
+				m: 60 * 1000,
+				h: 60 * 60 * 1000,
+				d: 24 * 60 * 60 * 1000,
+			};
+			const milliseconds = unitInMilliseconds[unit];
+			return new Date(Date.now() + value * milliseconds);
+		};
+
+		const refreshTokenExpiresAt = getDateFromDuration("1m");
+
+		res.status(httpStatus.OK).json({
+			success: true,
+			message: "Welcome to PH Healthcare System Backend",
+			data: refreshTokenExpiresAt,
+		});
+	} catch (error) {
+		console.log(error);
+		next(error);
+	}
+};
 
 export const TestController = {
 	testOne,
 	testTwo,
 	testThree,
 	testFour,
+	testFive,
 };
