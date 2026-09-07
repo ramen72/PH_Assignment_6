@@ -47,8 +47,23 @@ router.post(
 
 router.post(
 	"/logout",
-	auth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.MANAGER, UserRole.EMPLOYEE),
+	auth(
+		UserRole.SUPER_ADMIN,
+		UserRole.ADMIN,
+		UserRole.MANAGER,
+		UserRole.EMPLOYEE,
+	),
 	AuthController.userLogout,
+);
+router.post(
+	"/logoutAllDevices",
+	auth(
+		UserRole.SUPER_ADMIN,
+		UserRole.ADMIN,
+		UserRole.MANAGER,
+		UserRole.EMPLOYEE,
+	),
+	AuthController.userLogoutFromAllDevices,
 );
 
 /*

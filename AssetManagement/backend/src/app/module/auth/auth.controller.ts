@@ -4,6 +4,7 @@ import { catchAsync } from "../../utils/catchAsync";
 import { sendResponse } from "../../utils/sendResponse";
 import { AuthService } from "./auth.service";
 import config from "../../config";
+import { AppError } from "../../utils/AppError";
 
 const userRegister = catchAsync(async (req: Request, res: Response) => {
 	const payload = req.body;
@@ -105,10 +106,6 @@ const userLogin = catchAsync(async (req: Request, res: Response) => {
 	const result = await AuthService.userLoginService(payload);
 
 	const { accessToken, refreshToken } = result;
-
-	console.log(accessToken)
-	console.log(refreshToken)
-
 	// Access Token Cookie
 	res.cookie("accessToken", accessToken, {
 		httpOnly: true,
@@ -148,6 +145,30 @@ const userLogout = catchAsync(async (req: Request, res: Response) => {
 		data: {},
 	});
 });
+
+const userLogoutFromAllDevices = catchAsync(
+	async (req: Request, res: Response) => {
+		if (!req.user) {
+			throw new AppError(
+				httpStatus.BAD_REQUEST,
+				"User information is missing in the request",
+			);
+		}
+		const userId = req.user.userId;
+
+		await AuthService.userLogoutFromAllDevicesService(userId);
+
+		res.clearCookie("accessToken");
+		res.clearCookie("refreshToken");
+
+		sendResponse(res, {
+			statusCode: httpStatus.OK,
+			success: true,
+			message: "Logged out from all devices successfully",
+			data: {},
+		});
+	},
+);
 
 /*
 
@@ -208,6 +229,7 @@ export const AuthController = {
 	resetPasswordController,
 	userLogin,
 	userLogout,
+	userLogoutFromAllDevices,
 	/*
 	getMe,
 	refreshToken,

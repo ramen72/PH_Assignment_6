@@ -1,10 +1,13 @@
-import httpStatus from 'http-status';
+import httpStatus from "http-status";
 import { AppError } from "./AppError";
 
 export const getDateFromDuration = (duration: string): Date => {
 	const match = duration.match(/^(\d+)([smhd])$/);
 	if (!match) {
-		throw new AppError( httpStatus.BAD_REQUEST, `Invalid duration format: ${duration}`, );
+		throw new AppError(
+			httpStatus.BAD_REQUEST,
+			`Invalid duration format: ${duration}`,
+		);
 	}
 	const value = Number(match[1]);
 	const unit = match[2];

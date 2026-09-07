@@ -153,7 +153,7 @@ const verifyUserEmailService = async (payload: IVerifyEmailPayload) => {
 	if (existingUser?.status === UserStatus.DELETED) {
 		throw new AppError(httpStatus.GONE, "User is Deleted.");
 	}
-	
+
 	// Verify OTP
 	const otpKey = `user-registration-otp:${email}`;
 
@@ -172,7 +172,7 @@ const verifyUserEmailService = async (payload: IVerifyEmailPayload) => {
 
 	// Delete OTP after successful verification
 	await redisClient.del(otpKey);
-	
+
 	// Get Registration Data
 	const userRegistrationKey = `user-registration-data:${email}`;
 
@@ -273,7 +273,7 @@ const verifyUserEmailService = async (payload: IVerifyEmailPayload) => {
 	// Generate JWT Tokens
 	const { profile, ...user } = createdUser;
 
-/*
+	/*
 
 	const jwtPayload = {
 		userId: user.id,
@@ -787,7 +787,9 @@ const userLoginService = async (payload: ILoginUserPayload) => {
 	);
 
 	// 9. Calculate refresh token expiration
-	const refreshTokenExpiresAt = getDateFromDuration(config.jwt_refresh_expires_in)
+	const refreshTokenExpiresAt = getDateFromDuration(
+		config.jwt_refresh_expires_in,
+	);
 
 	// 10. Store refresh token in database
 	await prisma.refreshToken.create({
@@ -807,10 +809,7 @@ const userLoginService = async (payload: ILoginUserPayload) => {
 
 const userLogoutService = async (refreshToken: string) => {
 	if (!refreshToken) {
-		throw new AppError(
-			httpStatus.BAD_REQUEST,
-			"Refresh token is required",
-		);
+		throw new AppError(httpStatus.BAD_REQUEST, "Refresh token is required");
 	}
 
 	// Find the refresh token
@@ -822,10 +821,7 @@ const userLogoutService = async (refreshToken: string) => {
 
 	// Token does not exist
 	if (!storedToken) {
-		throw new AppError(
-			httpStatus.NOT_FOUND,
-			"Refresh token not found",
-		);
+		throw new AppError(httpStatus.NOT_FOUND, "Refresh token not found");
 	}
 
 	// Token is already revoked
@@ -838,10 +834,7 @@ const userLogoutService = async (refreshToken: string) => {
 
 	// Token is expired
 	if (storedToken.expiresAt <= new Date()) {
-		throw new AppError(
-			httpStatus.UNAUTHORIZED,
-			"Refresh token has expired",
-		);
+		throw new AppError(httpStatus.UNAUTHORIZED, "Refresh token has expired");
 	}
 
 	// Revoke refresh token
@@ -873,7 +866,6 @@ const userLogoutFromAllDevicesService = async (userId: string) => {
 	};
 };
 
-
 export const AuthService = {
 	userRegisterService,
 	verifyUserEmailService,
@@ -882,5 +874,5 @@ export const AuthService = {
 	resetPasswordService,
 	userLoginService,
 	userLogoutService,
-	userLogoutFromAllDevicesService
+	userLogoutFromAllDevicesService,
 };
