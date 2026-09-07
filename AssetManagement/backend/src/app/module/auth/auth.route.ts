@@ -3,7 +3,12 @@ import { Router } from "express";
 // import { auth } from "../../middleware/checkAuth";
 import { validateRequest } from "../../middleware/validateRequest";
 import { AuthController } from "./auth.controller";
-import { ForgotPasswordZodSchema, UserEmailVerifyZodSchema, UserRegisterZodSchema } from "./zodSchema";
+import {
+	ForgotPasswordZodSchema,
+	ResetPasswordZodSchema,
+	UserEmailVerifyZodSchema,
+	UserRegisterZodSchema,
+} from "./zodSchema";
 
 const router = Router();
 
@@ -25,6 +30,13 @@ router.post(
 	validateRequest(ForgotPasswordZodSchema),
 	AuthController.forgotPasswordController,
 );
+router.post(
+	"/resetPassword",
+	validateRequest(ResetPasswordZodSchema),
+	AuthController.resetPasswordController,
+);
+
+
 /*
 router.post(
 	"/login",
@@ -40,11 +52,7 @@ router.get(
 router.post("/refresh-token", AuthController.refreshToken);
 
 
-router.post(
-	"/resetPassword",
-	validateRequest(ResetPasswordZodSchema),
-	AuthController.resetPasswordController,
-);
+
 
 */
 export const AuthRoutes = router;

@@ -120,16 +120,13 @@ export const LoginZodSchema = z.object({
 });
 
 export const ForgotPasswordZodSchema = z.object({
-	email: z
-		.string()
-		.trim()
-		.email("Need a valid email.!"),
+	email: z.string().trim().email("Need a valid email.!"),
 });
 
 export const ResetPasswordZodSchema = z.object({
 	email: z.email("Need a valid email.!"),
 	newPassword: z
-		.string()
+		.string("Password must be a string.")
 		.min(8, { message: "Password must be at least 8 characters long." })
 		.max(48, { message: "Password cannot exceed 48 characters." })
 		.regex(/[A-Z]/, {
