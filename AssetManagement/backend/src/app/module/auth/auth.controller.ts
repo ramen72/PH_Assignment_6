@@ -170,6 +170,41 @@ const userLogoutFromAllDevices = catchAsync(
 	},
 );
 
+const refreshToken = catchAsync(async (req: Request, res: Response) => {
+	const { refreshToken } = req.cookies;
+
+	if (!refreshToken) {
+		throw new AppError(httpStatus.BAD_REQUEST, "Refresh token is required");
+	}
+	const result = await AuthService.refreshTokenService(refreshToken);
+	const { accessToken, refreshToken: newRefreshToken } = result;
+
+	// Access Token Cookie
+	res.cookie("accessToken", accessToken, {
+		httpOnly: true,
+		secure: config.node_env === "production",
+		sameSite: config.node_env === "production" ? "none" : "lax",
+		maxAge: 1000 * 60 * 60, // 1 hour
+	});
+
+	// Refresh Token Cookie
+	res.cookie("refreshToken", newRefreshToken, {
+		httpOnly: true,
+		secure: config.node_env === "production",
+		sameSite: config.node_env === "production" ? "none" : "lax",
+		maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
+	});
+	sendResponse(res, {
+		statusCode: httpStatus.OK,
+		success: true,
+		message: "New tokens generated successfully",
+		data: {
+			accessToken,
+			refreshToken: newRefreshToken,
+		},
+	});
+});
+
 /*
 
 const getMe = catchAsync(async (req: Request, res: Response) => {
@@ -188,36 +223,7 @@ const getMe = catchAsync(async (req: Request, res: Response) => {
 	});
 });
 
-const refreshToken = catchAsync(async (req: Request, res: Response) => {
-	if (!req.cookies.refreshToken) {
-		throw new AppError(httpStatus.BAD_REQUEST,"Refresh token is missing");
-	}
-	const result = await AuthService.refreshToken(req.cookies.refreshToken);
-	const { accessToken, refreshToken: newRefreshToken } = result;
 
-	res.cookie("accessToken", accessToken, {
-		httpOnly: true,
-		secure: false,
-		sameSite: "none",
-		maxAge: 1000 * 60 * 60 * 24, // 24 hour or 1 day
-	});
-	res.cookie("refreshToken", newRefreshToken, {
-		httpOnly: true,
-		secure: false,
-		sameSite: "none",
-		maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
-	});
-
-	sendResponse(res, {
-		statusCode: httpStatus.OK,
-		success: true,
-		message: "New tokens generated successfully",
-		data: {
-			accessToken,
-			refreshToken: newRefreshToken,
-		},
-	});
-});
 
 
 */
@@ -230,8 +236,8 @@ export const AuthController = {
 	userLogin,
 	userLogout,
 	userLogoutFromAllDevices,
+	refreshToken,
 	/*
 	getMe,
-	refreshToken,
 	*/
 };

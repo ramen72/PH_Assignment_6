@@ -2,7 +2,7 @@ import bcrypt from "bcryptjs";
 import ejs from "ejs";
 import httpStatus from "http-status";
 import type { TokenPayload } from "google-auth-library";
-import type { SignOptions } from "jsonwebtoken";
+import type { JwtPayload, SignOptions } from "jsonwebtoken";
 import crypto from "node:crypto";
 import path from "node:path";
 
@@ -865,6 +865,115 @@ const userLogoutFromAllDevicesService = async (userId: string) => {
 	};
 };
 
+const refreshTokenService = async (token: string) => {
+	// 1. Verify refresh token JWT
+	const verifiedRefreshToken = jwtUtils.verifyToken(
+		token,
+		config.jwt_refresh_secret,
+	);
+
+	if (!verifiedRefreshToken.success || !verifiedRefreshToken.data) {
+		throw new Error(
+			config.node_env === "development"
+				? verifiedRefreshToken.error
+				: "Invalid refresh token",
+		);
+	}
+
+	const data = verifiedRefreshToken.data as JwtPayload;
+
+	// 2. Check refresh token in database
+	const storedRefreshToken = await prisma.refreshToken.findUnique({
+		where: {
+			token,
+		},
+	});
+
+	if (!storedRefreshToken) {
+		throw new Error("Refresh token not found");
+	}
+
+	// 3. Check if token is already revoked
+	if (storedRefreshToken.revokedAt) {
+		throw new Error("Refresh token has been revoked");
+	}
+
+	// 4. Check if token is expired in database
+	if (storedRefreshToken.expiresAt <= new Date()) {
+		throw new Error("Refresh token has expired");
+	}
+
+	// 5. Check user
+	const user = await prisma.user.findUnique({
+		where: {
+			id: data.userId,
+		},
+	});
+
+	if (
+		!user ||
+		user.isDeleted ||
+		!user.isActive ||
+		user.status !== UserStatus.ACTIVE
+	) {
+		throw new Error("User is inactive or not found");
+	}
+
+	// 6. Create JWT payload
+	const jwtPayload = {
+		userId: user.id,
+		name: user.name,
+		email: user.email,
+		role: user.role,
+	};
+
+	// 7. Create new access token
+	const accessToken = jwtUtils.createToken(
+		jwtPayload,
+		config.jwt_access_secret,
+		config.jwt_access_expires_in as SignOptions,
+	);
+
+	// 8. Create new refresh token
+	const newRefreshToken = jwtUtils.createToken(
+		jwtPayload,
+		config.jwt_refresh_secret,
+		config.jwt_refresh_expires_in as SignOptions,
+	);
+
+	// 9. Calculate new refresh token expiry
+	const refreshTokenExpiresAt = getDateFromDuration(
+		config.jwt_refresh_expires_in,
+	);
+
+	// 10. Rotate refresh token
+	await prisma.$transaction([
+		// Revoke old refresh token
+		prisma.refreshToken.update({
+			where: {
+				id: storedRefreshToken.id,
+			},
+			data: {
+				revokedAt: new Date(),
+			},
+		}),
+
+		// Store new refresh token
+		prisma.refreshToken.create({
+			data: {
+				userId: user.id,
+				token: newRefreshToken,
+				expiresAt: refreshTokenExpiresAt,
+			},
+		}),
+	]);
+
+	return {
+		accessToken,
+		refreshToken: newRefreshToken,
+	};
+};
+
 export const AuthService = {
 	userRegisterService,
 	verifyUserEmailService,
@@ -874,4 +983,5 @@ export const AuthService = {
 	userLoginService,
 	userLogoutService,
 	userLogoutFromAllDevicesService,
+	refreshTokenService,
 };

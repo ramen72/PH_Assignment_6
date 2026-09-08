@@ -55,6 +55,7 @@ router.post(
 	),
 	AuthController.userLogout,
 );
+
 router.post(
 	"/logoutAllDevices",
 	auth(
@@ -65,6 +66,8 @@ router.post(
 	),
 	AuthController.userLogoutFromAllDevices,
 );
+
+router.post("/refreshToken", AuthController.refreshToken);
 
 /*
 router.get(
