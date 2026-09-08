@@ -1,12 +1,11 @@
+import bcrypt from "bcryptjs";
+import ejs from "ejs";
+import httpStatus from "http-status";
+import type { TokenPayload } from "google-auth-library";
+import type { SignOptions } from "jsonwebtoken";
 import crypto from "node:crypto";
 import path from "node:path";
 
-import bcrypt from "bcryptjs";
-import ejs from "ejs";
-import type { TokenPayload } from "google-auth-library";
-import type { SignOptions } from "jsonwebtoken";
-
-import httpStatus from "http-status";
 import {
 	AuthProvider,
 	UserRole,
@@ -17,6 +16,8 @@ import { googleClient } from "../../lib/googleAuth";
 import { prisma } from "../../lib/prisma";
 import { redisClient } from "../../lib/redis";
 import { sendEmail } from "../../lib/sendMail";
+import { AppError } from "../../utils/AppError";
+import { getDateFromDuration } from "../../utils/getDateFromDuration";
 import { jwtUtils } from "../../utils/jwt";
 import type {
 	IForgotPasswordPayload,
@@ -26,8 +27,6 @@ import type {
 	IUserRegisterPayload,
 	IVerifyEmailPayload,
 } from "./auth.interface";
-import { AppError } from "../../utils/AppError";
-import { getDateFromDuration } from "../../utils/getDateFromDuration";
 
 const userRegisterService = async (payload: IUserRegisterPayload) => {
 	const { name, password, phone, department, designation, profile } = payload;
