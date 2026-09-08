@@ -88,8 +88,6 @@ const userRegisterService = async (payload: IUserRegisterPayload) => {
 		profile: profile ?? null,
 	};
 
-	console.log(redisUserDataPayload);
-
 	await redisClient.set(
 		userRegistrationKey,
 		JSON.stringify(redisUserDataPayload),

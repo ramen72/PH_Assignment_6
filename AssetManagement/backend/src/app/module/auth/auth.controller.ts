@@ -8,7 +8,7 @@ import { AppError } from "../../utils/AppError";
 
 const userRegister = catchAsync(async (req: Request, res: Response) => {
 	const payload = req.body;
-	console.log(payload);
+	
 	await AuthService.userRegisterService(payload);
 	sendResponse(res, {
 		statusCode: httpStatus.CREATED,
