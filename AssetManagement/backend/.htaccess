@@ -1,0 +1,40 @@
+# DO NOT REMOVE. CLOUDLINUX PASSENGER CONFIGURATION BEGIN
+PassengerAppRoot "/home/devsrame/_addon/assets/backend"
+PassengerBaseURI "/"
+PassengerNodejs "/home/devsrame/nodevenv/_addon/assets/backend/22/bin/node"
+PassengerAppType node
+PassengerStartupFile server.js
+# DO NOT REMOVE. CLOUDLINUX PASSENGER CONFIGURATION END
+
+# BEGIN cPanel-generated php ini directives, do not edit
+<IfModule php8_module>
+   php_value error_log "/home/devsrame/logs/php.error.log"
+   php_flag log_errors On
+</IfModule>
+
+<IfModule lsapi_module>
+   php_value error_log "/home/devsrame/logs/php.error.log"
+   php_flag log_errors On
+</IfModule>
+# END cPanel-generated php ini directives, do not edit
+
+# DO NOT REMOVE OR MODIFY. CLOUDLINUX ENV VARS CONFIGURATION BEGIN
+<IfModule Litespeed>
+   SetEnv APP_URL https://assets.devsramen.com
+   SetEnv BCRYPT_SALT_ROUNDS 10
+
+   # Add your DATABASE_URL from cPanel Environment Variables
+   # SetEnv DATABASE_URL "..."
+
+   SetEnv JWT_ACCESS_EXPIRES_IN 1d
+   SetEnv JWT_REFRESH_EXPIRES_IN 7d
+   SetEnv PORT 5000
+
+   # Add Stripe/JWT secrets through cPanel Environment Variables
+   # SetEnv STRIPE_PRODUCT_PRICE_ID "..."
+   # SetEnv STRIPE_SECRET_KEY "..."
+   # SetEnv STRIPE_WEBHOOK_SECRET "..."
+   # SetEnv JWT_ACCESS_SECRET "..."
+   # SetEnv JWT_REFRESH_SECRET "..."
+</IfModule>
+# DO NOT REMOVE OR MODIFY. CLOUDLINUX ENV VARS CONFIGURATION END
