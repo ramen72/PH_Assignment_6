@@ -1,6 +1,7 @@
 import { Router } from "express";
-// import { UserRole } from "../../../generated/prisma/enums";
-// import { auth } from "../../middleware/checkAuth";
+
+import { UserRole } from "../../../generated/prisma/enums";
+import { auth } from "../../middleware/checkAuth";
 import { validateRequest } from "../../middleware/validateRequest";
 import { AuthController } from "./auth.controller";
 import {
@@ -10,8 +11,6 @@ import {
 	UserEmailVerifyZodSchema,
 	UserRegisterZodSchema,
 } from "./zodSchema";
-import { auth } from "../../middleware/checkAuth";
-import { UserRole } from "../../../generated/prisma/enums";
 
 const router = Router();
 
