@@ -1,8 +1,9 @@
 import type {
-  AssetCondition,
   AssetStatus,
   Prisma,
 } from "@prisma/client";
+
+type AssetCondition = string;
 
 export interface IAssetFilterRequest {
   searchTerm?: string;

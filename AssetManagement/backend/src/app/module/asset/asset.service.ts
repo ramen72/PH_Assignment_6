@@ -1,9 +1,3 @@
-import { Prisma, Asset } from "@prisma/client";
-// import { prisma } from "../../config/database";
-// import AppError from "../../errors/AppError";
-// import { paginationHelper } from "../../helpers/paginationHelper";
-// import { IPaginationOptions } from "../../interfaces/pagination";
-
 import {
   IAssetFilterRequest,
   ICreateAssetPayload,
@@ -11,6 +5,7 @@ import {
 } from "./asset.interface";
 import { prisma } from "../../lib/prisma";
 import { AppError } from "../../utils/AppError";
+import { Asset, Prisma } from "../../../generated/prisma/client";
 
 
 // ======================================================

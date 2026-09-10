@@ -13,6 +13,7 @@ import { AuthRoutes } from "./app/module/auth/auth.route";
 import { TestRoutes } from "./app/module/test/test.route";
 // import { UserRoutes } from "./app/module/user/user.route";
 import { AssetRoutes } from './app/module/asset/asset.route';
+import { AssetCategoryRoutes } from "./app/module/category/category.route";
 
 const app: Application = express();
 
@@ -33,6 +34,7 @@ app.use(cookieParser());
 // Model Routes
 app.use("/api/v1/auth", AuthRoutes);
 app.use("/api/v1/asset", AssetRoutes);
+app.use("/api/v1/assetCategories", AssetCategoryRoutes);
 
 // Test Routes
 app.use("/", TestRoutes);
