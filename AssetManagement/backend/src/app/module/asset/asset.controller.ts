@@ -19,11 +19,16 @@ const createAsset = catchAsync(async (req: Request, res: Response) => {
 
 // GET ALL
 const getAllAssets = catchAsync(async (req: Request, res: Response) => {
-	const result = await AssetService.getAllAssets(req.query, {
-		page: req.query.page,
-		limit: req.query.limit,
-		sortBy: req.query.sortBy,
-		sortOrder: req.query.sortOrder,
+	const result = await AssetService.getAllAssetsService(req.query, {
+		page: Number(req.query.page) || 1,
+		limit: Number(req.query.limit) || 10,
+
+		sortBy: typeof req.query.sortBy === "string" ? req.query.sortBy : undefined,
+
+		sortOrder:
+			req.query.sortOrder === "asc" || req.query.sortOrder === "desc"
+				? req.query.sortOrder
+				: undefined,
 	});
 
 	sendResponse(res, {
@@ -40,7 +45,9 @@ const getAllAssets = catchAsync(async (req: Request, res: Response) => {
 
 // GET SINGLE
 const getSingleAsset = catchAsync(async (req: Request, res: Response) => {
-	const result = await AssetService.getSingleAsset(req.params.id as string);
+	const result = await AssetService.getSingleAssetService(
+		req.params.id as string,
+	);
 
 	sendResponse(res, {
 		statusCode: httpStatus.OK,
@@ -52,7 +59,7 @@ const getSingleAsset = catchAsync(async (req: Request, res: Response) => {
 
 // UPDATE
 const updateAsset = catchAsync(async (req: Request, res: Response) => {
-	const result = await AssetService.updateAsset(
+	const result = await AssetService.updateAssetService(
 		req.params.id as string,
 		req.body,
 	);
@@ -67,7 +74,7 @@ const updateAsset = catchAsync(async (req: Request, res: Response) => {
 
 // DELETE
 const deleteAsset = catchAsync(async (req: Request, res: Response) => {
-	const result = await AssetService.deleteAsset(req.params.id as string);
+	const result = await AssetService.deleteAssetService(req.params.id as string);
 
 	sendResponse(res, {
 		statusCode: httpStatus.OK,
@@ -76,7 +83,6 @@ const deleteAsset = catchAsync(async (req: Request, res: Response) => {
 		data: result,
 	});
 });
-
 
 // EXPORT
 export const AssetController = {

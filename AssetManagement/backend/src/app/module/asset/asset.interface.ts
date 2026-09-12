@@ -1,9 +1,10 @@
 // import type { AssetStatus, Prisma } from "@prisma/client";
 
 import type { Prisma } from "../../../generated/prisma/client";
-import type { AssetStatus } from "../../../generated/prisma/enums";
-
-
+import type {
+	AssetCondition,
+	AssetStatus,
+} from "../../../generated/prisma/enums";
 
 export interface IAssetFilterRequest {
 	searchTerm?: string;
@@ -11,7 +12,7 @@ export interface IAssetFilterRequest {
 	categoryId?: string;
 	vendorId?: string;
 	status?: AssetStatus;
-	condition?: string;
+	condition?: AssetCondition;
 	location?: string;
 }
 
@@ -26,7 +27,7 @@ export interface ICreateAssetPayload {
 	purchasePrice: Prisma.Decimal | number | string;
 	purchaseDate: Date | string;
 	warrantyExpiry?: Date | string;
-	condition?: string;
+	condition?: AssetCondition;
 	status?: AssetStatus;
 	location?: string;
 	imageUrl?: string;
@@ -44,9 +45,16 @@ export interface IUpdateAssetPayload {
 	purchasePrice?: Prisma.Decimal | number | string;
 	purchaseDate?: Date | string;
 	warrantyExpiry?: Date | string | null;
-	condition?: string;
+	condition?: AssetCondition;
 	status?: AssetStatus;
 	location?: string;
 	imageUrl?: string | null;
 	vendorId?: string | null;
+}
+
+export interface IPaginationOptions {
+	page?: number;
+	limit?: number;
+	sortBy?: string;
+	sortOrder?: "asc" | "desc";
 }

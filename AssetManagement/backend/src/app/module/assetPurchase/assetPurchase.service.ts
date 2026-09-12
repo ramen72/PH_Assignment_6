@@ -102,7 +102,7 @@ const createAssetPurchase = async (
 				},
 			},
 		});
-        
+
 		// 2. Update asset information
 		await tx.asset.update({
 			where: {

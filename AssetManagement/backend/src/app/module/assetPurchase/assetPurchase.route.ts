@@ -5,7 +5,16 @@ import { UserRole } from "../../../generated/prisma/enums";
 
 const router = Router();
 
-router.post("/",auth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.MANAGER, UserRole.EMPLOYEE), AssetPurchaseController.createAssetPurchase);
+router.post(
+	"/",
+	auth(
+		UserRole.SUPER_ADMIN,
+		UserRole.ADMIN,
+		UserRole.MANAGER,
+		UserRole.EMPLOYEE,
+	),
+	AssetPurchaseController.createAssetPurchase,
+);
 
 router.get("/", AssetPurchaseController.getAllAssetPurchases);
 

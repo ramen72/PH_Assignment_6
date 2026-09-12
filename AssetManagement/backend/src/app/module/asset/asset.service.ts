@@ -1,9 +1,11 @@
 import { type Asset, Prisma } from "../../../generated/prisma/client";
 import { prisma } from "../../lib/prisma";
 import { AppError } from "../../utils/AppError";
+import { paginationHelper } from "../../utils/paginationHelper";
 import type {
 	IAssetFilterRequest,
 	ICreateAssetPayload,
+	IPaginationOptions,
 	IUpdateAssetPayload,
 } from "./asset.interface";
 
@@ -91,9 +93,8 @@ const createAsset = async (payload: ICreateAssetPayload): Promise<Asset> => {
 	return result;
 };
 
-/*
 // GET ALL ASSETS
-const getAllAssets = async (
+const getAllAssetsService = async (
 	filters: IAssetFilterRequest,
 	options: IPaginationOptions,
 ) => {
@@ -237,7 +238,7 @@ const getAllAssets = async (
 };
 
 // GET SINGLE ASSET
-const getSingleAsset = async (id: string): Promise<Asset> => {
+const getSingleAssetService = async (id: string): Promise<Asset> => {
 	const result = await prisma.asset.findUnique({
 		where: {
 			id,
@@ -301,7 +302,7 @@ const getSingleAsset = async (id: string): Promise<Asset> => {
 };
 
 // UPDATE ASSET
-const updateAsset = async (
+const updateAssetService = async (
 	id: string,
 	payload: IUpdateAssetPayload,
 ): Promise<Asset> => {
@@ -446,7 +447,7 @@ const updateAsset = async (
 };
 
 // DELETE ASSET
-const deleteAsset = async (id: string): Promise<Asset> => {
+const deleteAssetService = async (id: string): Promise<Asset> => {
 	const existingAsset = await prisma.asset.findUnique({
 		where: {
 			id,
@@ -481,14 +482,11 @@ const deleteAsset = async (id: string): Promise<Asset> => {
 
 	return result;
 };
-*/
-// EXPORT
+
 export const AssetService = {
 	createAsset,
-	/*
-	getAllAssets,
-	getSingleAsset,
-	updateAsset,
-	deleteAsset,
-	*/
+	getAllAssetsService,
+	getSingleAssetService,
+	updateAssetService,
+	deleteAssetService,
 };

@@ -13,7 +13,7 @@ const router = express.Router();
 // Create Asset
 router.post(
 	"/",
-	// validateRequest(createAssetZodSchema),
+	validateRequest(createAssetZodSchema),
 	AssetController.createAsset,
 );
 

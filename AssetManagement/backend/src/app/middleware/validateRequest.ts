@@ -6,20 +6,25 @@ import { AppError } from "../utils/AppError";
 import { catchAsync } from "../utils/catchAsync";
 
 export const validateRequest = (zodSchema: ZodObject<ZodRawShape>) => {
-	return catchAsync((req: Request, res: Response, next: NextFunction) => {
-		const payload = req.body ?? {};
+	return catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+		const payload = {
+			body: req.body,
+			params: req.params,
+			query: req.query,
+		};
+
 		const result = zodSchema.safeParse(payload);
 
 		if (!result.success) {
-			console.log(result.error);
-			console.log(result.error.issues);
+			console.log("Validation Error:", result.error.issues);
+
 			throw new AppError(
 				httpStatus.BAD_REQUEST,
-				result?.error?.issues[0].message,
+				result.error.issues[0]?.message || "Validation failed",
 			);
 		}
 
-		req.body = result.data;
+		req.body = result.data.body ?? req.body;
 
 		next();
 	});
