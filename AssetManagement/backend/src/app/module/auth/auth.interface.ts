@@ -1,22 +1,11 @@
 import type { UserRole } from "../../../generated/prisma/browser";
 
-export interface IRegisterPatientPayload {
-	name: string;
-	email: string;
-	password: string;
-	patient?: {
-		contactNumber?: string;
-	};
-}
-
 export interface IRequestUser {
 	userId: string;
 	name: string;
 	email: string;
 	role: UserRole;
 }
-
-// ========================================
 export interface IUserRegisterPayload {
 	name: string;
 	email: string;

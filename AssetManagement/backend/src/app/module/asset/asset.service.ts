@@ -1,7 +1,8 @@
-import { type Asset, Prisma } from "../../../generated/prisma/client";
+import { type Asset, PaymentStatus, Prisma } from "../../../generated/prisma/client";
 import { prisma } from "../../lib/prisma";
 import { AppError } from "../../utils/AppError";
 import { paginationHelper } from "../../utils/paginationHelper";
+import { ICreateAssetPurchasePayload } from "../assetPurchase/assetPurchase.interface";
 import type {
 	IAssetFilterRequest,
 	ICreateAssetPayload,
@@ -92,7 +93,124 @@ const createAsset = async (payload: ICreateAssetPayload): Promise<Asset> => {
 
 	return result;
 };
+/*
+const createAsset = async (
+  assetId: string,
+  userId: string,
+  payload: ICreateAssetPurchasePayload,
+) => {
+  const {
+    vendorId,
+    invoiceNumber,
+    quantity = 1,
+    unitPrice,
+    purchaseDate,
+    invoiceUrl,
+    remarks,
+  } = payload;
 
+  const asset = await prisma.asset.findUnique({
+    where: {
+      id: assetId,
+    },
+  });
+
+  if (!asset) {
+    throw new AppError(404, "Asset not found");
+  }
+
+  const vendor = await prisma.vendor.findUnique({
+    where: {
+      id: vendorId,
+    },
+  });
+
+  if (!vendor) {
+    throw new AppError(404, "Vendor not found");
+  }
+
+  if (!vendor.isActive) {
+    throw new AppError(
+      400,
+      "Vendor is currently inactive",
+    );
+  }
+
+  const existingInvoice =
+    await prisma.assetPurchase.findUnique({
+      where: {
+        invoiceNumber,
+      },
+    });
+
+  if (existingInvoice) {
+    throw new AppError(
+      409,
+      "Invoice number already exists",
+    );
+  }
+
+  const totalAmount = unitPrice * quantity;
+
+  const result = await prisma.$transaction(
+    async (tx) => {
+      const purchase =
+        await tx.assetPurchase.create({
+          data: {
+            assetId,
+            vendorId,
+            createdById: userId,
+
+            invoiceNumber,
+
+            quantity,
+
+            unitPrice: new Prisma.Decimal(unitPrice),
+
+            totalAmount:
+              new Prisma.Decimal(totalAmount),
+
+            purchaseDate:
+              purchaseDate ?? new Date(),
+
+            paymentStatus:
+              PaymentStatus.PENDING,
+
+            invoiceUrl,
+
+            remarks,
+          },
+
+          include: {
+            asset: true,
+            vendor: true,
+          },
+        });
+
+      await tx.asset.update({
+        where: {
+          id: assetId,
+        },
+        data: {
+          vendorId,
+
+          purchasePrice:
+            new Prisma.Decimal(totalAmount),
+
+          purchaseDate:
+            purchaseDate ?? new Date(),
+
+          status: "AVAILABLE",
+        },
+      });
+
+      return purchase;
+    },
+  );
+
+  return result;
+};
+*/
 // GET ALL ASSETS
 const getAllAssetsService = async (
 	filters: IAssetFilterRequest,

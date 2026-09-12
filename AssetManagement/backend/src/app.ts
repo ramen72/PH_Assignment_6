@@ -16,6 +16,7 @@ import { AssetRoutes } from "./app/module/asset/asset.route";
 import { AssetCategoryRoutes } from "./app/module/category/category.route";
 import { VendorRoutes } from "./app/module/vendor/vendor.route";
 import { AssetPurchaseRoutes } from "./app/module/assetPurchase/assetPurchase.route";
+import { PaymentBkashRoutes } from "./app/module/payments/bkash/payment.bkash.route";
 
 const app: Application = express();
 
@@ -39,6 +40,7 @@ app.use("/api/v1/assets", AssetRoutes);
 app.use("/api/v1/assetCategories", AssetCategoryRoutes);
 app.use("/api/v1/vendors", VendorRoutes);
 app.use("/api/v1/assetPurchases", AssetPurchaseRoutes);
+app.use("/api/v1/bkash", PaymentBkashRoutes);
 
 // Test Routes
 app.use("/", TestRoutes);
