@@ -2,6 +2,7 @@ import crypto from "crypto";
 import type { NextFunction, Request, Response } from "express";
 import httpStatus from "http-status";
 import z, { email } from "zod";
+import { BkashService } from "../payments/bkash/bkash.service";
 
 const testOne = async (req: Request, res: Response, next: NextFunction) => {
 	try {
@@ -32,6 +33,17 @@ const testOne = async (req: Request, res: Response, next: NextFunction) => {
 	}
 };
 
+const bkashTokenController = async (req: Request, res: Response, next: NextFunction) => {
+	try {
+		const bkashToken = await BkashService.getBkashToken()
+		console.log(bkashToken)
+	} catch (error) {
+		console.log(error);
+		next(error);
+	}
+};
+
 export const TestController = {
-	testOne
+	testOne,
+	bkashTokenController
 };

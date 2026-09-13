@@ -27,7 +27,7 @@ const createBkashPayment = catchAsync(
     const userId = req.user.userId;
 
     const result =
-      await PaymentBkashService.createBkashPayment(
+      await PaymentBkashService.createBkashPaymentService(
         purchaseId,
         userId,
       );

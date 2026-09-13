@@ -32,6 +32,8 @@ export interface IBkashExecutePaymentResponse {
   merchantInvoiceNumber: string;
   customerMsisdn?: string;
   verificationStatus?: string;
+  statusCode: string;
+  statusMessage?: string;
 }
 
 export interface ICreateBkashPaymentPayload {

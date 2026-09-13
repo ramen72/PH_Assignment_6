@@ -15,10 +15,10 @@ const getBkashToken = async (): Promise<string> => {
     {
       method: "POST",
       headers: {
-        username: config.bkash_username,
-        password: config.bkash_password,
         "Content-Type": "application/json",
         Accept: "application/json",
+        username: config.bkash_username,
+        password: config.bkash_password,
       },
       body: JSON.stringify({
         app_key: config.bkash_app_key,
@@ -52,17 +52,18 @@ const createPayment = async (
   invoiceNumber: string,
 ): Promise<IBkashCreatePaymentResponse> => {
   const token = await getBkashToken();
+  console.log(token)
 
   const response = await fetch(
     `${config.bkash_base_url}/tokenized/checkout/create`,
     {
       method: "POST",
       headers: {
-        Authorization: token,
-        "X-APP-Key": config.bkash_app_key,
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
+					"Content-Type": "application/json",
+					Accept: "application/json",
+					Authorization: token,
+					"X-App-Key": config.bkash_app_key,
+				},
       body: JSON.stringify({
         mode: "0011",
         payerReference: invoiceNumber,
@@ -99,16 +100,19 @@ const executePayment = async (
     {
       method: "POST",
       headers: {
-        Authorization: token,
-        "X-APP-Key": config.bkash_app_key,
         "Content-Type": "application/json",
         Accept: "application/json",
+        Authorization: token,
+        "X-APP-Key": config.bkash_app_key,
       },
       body: JSON.stringify({
         paymentID,
       }),
     },
   );
+
+  const data =
+    (await response.json()) as IBkashExecutePaymentResponse;
 
   if (!response.ok) {
     const errorData = await response.text();
@@ -117,9 +121,6 @@ const executePayment = async (
       `bKash execute payment failed: ${response.status} ${errorData}`,
     );
   }
-
-  const data =
-    (await response.json()) as IBkashExecutePaymentResponse;
 
   return data;
 };

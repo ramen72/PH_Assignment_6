@@ -5,7 +5,7 @@ import { prisma } from "../../../lib/prisma";
 import { AppError } from "../../../utils/AppError";
 import { BkashService } from './bkash.service';
 
-const createBkashPayment = async (
+const createBkashPaymentService = async (
   purchaseId: string,
   userId: string,
 ) => {
@@ -99,6 +99,7 @@ const executeBkashPayment = async (
   paymentId: string,
   userId: string,
 ) => {
+  // Find payment
   const payment = await prisma.payment.findUnique({
     where: {
       id: paymentId,
@@ -112,6 +113,7 @@ const executeBkashPayment = async (
     throw new AppError(404, "Payment not found");
   }
 
+  // Check ownership
   if (payment.userId !== userId) {
     throw new AppError(
       403,
@@ -119,6 +121,7 @@ const executeBkashPayment = async (
     );
   }
 
+  // Already paid
   if (payment.paymentStatus === PaymentStatus.PAID) {
     return payment;
   }
@@ -179,6 +182,6 @@ const executeBkashPayment = async (
 };
 
 export const PaymentBkashService = {
-  createBkashPayment,
+  createBkashPaymentService,
   executeBkashPayment,
 };
