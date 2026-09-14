@@ -1,16 +1,19 @@
 import type { Request, Response } from "express";
-
 import httpStatus from "http-status";
-
+import { AppError } from "../../utils/AppError";
 import { catchAsync } from "../../utils/catchAsync";
-
 import { sendResponse } from "../../utils/sendResponse";
-
 import { AssetRequestService } from "./assetRequest.service";
 
 // Create Request Controller
 const createAssetRequest = catchAsync(async (req: Request, res: Response) => {
-	const userId = req.user.id;
+	if (!req.user) {
+		throw new AppError(
+			httpStatus.UNAUTHORIZED,
+			"User Not Found or you are not login.",
+		);
+	}
+	const userId = req.user.userId;
 
 	const result = await AssetRequestService.createAssetRequestService(
 		userId,
@@ -48,7 +51,13 @@ const getAllAssetRequests = catchAsync(async (req: Request, res: Response) => {
 
 // Get My Requests Controller
 const getMyAssetRequests = catchAsync(async (req: Request, res: Response) => {
-	const userId = req.user.id;
+	if (!req.user) {
+		throw new AppError(
+			httpStatus.UNAUTHORIZED,
+			"User Not Found or you are not login.",
+		);
+	}
+	const userId = req.user.userId;
 
 	const result = await AssetRequestService.getMyAssetRequestsService(
 		userId,
@@ -75,10 +84,16 @@ const getSingleAssetRequest = catchAsync(
 	async (req: Request, res: Response) => {
 		const { id } = req.params;
 
-		const userId = req.user.id;
+		if (!req.user) {
+			throw new AppError(
+				httpStatus.UNAUTHORIZED,
+				"User Not Found or you are not login.",
+			);
+		}
+		const userId = req.user.userId;
 
 		const result = await AssetRequestService.getSingleAssetRequestService(
-			id,
+			id as string,
 			userId,
 		);
 
@@ -95,10 +110,17 @@ const getSingleAssetRequest = catchAsync(
 const updateAssetRequest = catchAsync(async (req: Request, res: Response) => {
 	const { id } = req.params;
 
-	const userId = req.user.id;
+	if (!req.user) {
+		throw new AppError(
+			httpStatus.UNAUTHORIZED,
+			"User Not Found or you are not login.",
+		);
+	}
+
+	const userId = req.user.userId;
 
 	const result = await AssetRequestService.updateAssetRequestService(
-		id,
+		id as string,
 		userId,
 		req.body,
 	);
@@ -115,10 +137,16 @@ const updateAssetRequest = catchAsync(async (req: Request, res: Response) => {
 const cancelAssetRequest = catchAsync(async (req: Request, res: Response) => {
 	const { id } = req.params;
 
-	const userId = req.user.id;
+	if (!req.user) {
+		throw new AppError(
+			httpStatus.UNAUTHORIZED,
+			"User Not Found or you are not login.",
+		);
+	}
+	const userId = req.user.userId;
 
 	const result = await AssetRequestService.cancelAssetRequestService(
-		id,
+		id as string,
 		userId,
 	);
 
@@ -134,10 +162,17 @@ const cancelAssetRequest = catchAsync(async (req: Request, res: Response) => {
 const approveAssetRequest = catchAsync(async (req: Request, res: Response) => {
 	const { id } = req.params;
 
-	const reviewerId = req.user.id;
+	if (!req.user) {
+		throw new AppError(
+			httpStatus.UNAUTHORIZED,
+			"User Not Found or you are not login.",
+		);
+	}
+
+	const reviewerId = req.user.userId;
 
 	const result = await AssetRequestService.approveAssetRequestService(
-		id,
+		id as string,
 		reviewerId,
 	);
 
@@ -153,12 +188,19 @@ const approveAssetRequest = catchAsync(async (req: Request, res: Response) => {
 const rejectAssetRequest = catchAsync(async (req: Request, res: Response) => {
 	const { id } = req.params;
 
-	const reviewerId = req.user.id;
+	if (!req.user) {
+		throw new AppError(
+			httpStatus.UNAUTHORIZED,
+			"User Not Found or you are not login.",
+		);
+	}
+
+	const reviewerId = req.user.userId;
 
 	const { rejectionReason } = req.body;
 
 	const result = await AssetRequestService.rejectAssetRequestService(
-		id,
+		id as string,
 		reviewerId,
 		rejectionReason,
 	);
@@ -175,7 +217,7 @@ const rejectAssetRequest = catchAsync(async (req: Request, res: Response) => {
 const deleteAssetRequest = catchAsync(async (req: Request, res: Response) => {
 	const { id } = req.params;
 
-	await AssetRequestService.deleteAssetRequestService(id);
+	await AssetRequestService.deleteAssetRequestService(id as string);
 
 	sendResponse(res, {
 		statusCode: httpStatus.OK,

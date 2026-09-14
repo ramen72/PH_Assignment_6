@@ -1,19 +1,16 @@
-import { AssetRequestStatus, Prisma } from "../../generated/prisma/client";
-
-import prisma from "../../shared/prisma";
-
-import {
+import httpStatus from "http-status";
+import type { Prisma } from "../../../generated/prisma/client";
+import { AssetRequestStatus } from "../../../generated/prisma/client";
+import { prisma } from "../../lib/prisma";
+import { AppError } from "../../utils/AppError";
+import { paginationHelper } from "../../utils/paginationHelper";
+import type { IPaginationOptions } from "../asset/asset.interface";
+import type {
 	IAssetRequestFilterRequest,
 	IAssetRequestOptions,
 	ICreateAssetRequestPayload,
 	IUpdateAssetRequestPayload,
 } from "./assetRequest.interface";
-
-import { paginationHelper } from "../../helpers/paginationHelper";
-
-import { AppError } from "../../errors/AppError";
-
-import httpStatus from "http-status";
 
 // Create Asset Request
 const createAssetRequestService = async (
@@ -87,7 +84,7 @@ const getAllAssetRequestsService = async (
 		filters;
 
 	const { page, limit, skip, sortBy, sortOrder } =
-		paginationHelper.calculatePagination(options);
+		paginationHelper.calculatePagination(options as IPaginationOptions);
 
 	const andConditions: Prisma.AssetRequestWhereInput[] = [];
 
@@ -188,6 +185,7 @@ const getAllAssetRequestsService = async (
 			page,
 			limit,
 			total,
+			totalPages: Math.ceil(total / limit),
 		},
 		data: result,
 	};
@@ -388,9 +386,7 @@ const updateAssetRequestService = async (
 		where: {
 			id,
 		},
-
 		data: payload,
-
 		include: {
 			category: true,
 			requestedAsset: true,
