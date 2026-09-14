@@ -144,9 +144,75 @@ const executeBkashPayment = async (paymentId: string, userId: string) => {
 			},
 			data: {
 				transactionId: bkashResponse.trxID,
-
 				paymentStatus: PaymentStatus.PAID,
+				paidAt: new Date(),
+			},
+		});
 
+		await tx.assetPurchase.update({
+			where: {
+				id: payment.purchaseId,
+			},
+			data: {
+				paymentStatus: PaymentStatus.PAID,
+			},
+		});
+
+		return updatedPayment;
+	});
+
+	return result;
+};
+
+const executeBkashPaymentByTransactionId = async (transactionId: string) => {
+	// 1. Find payment by bKash paymentID
+	const payment = await prisma.payment.findUnique({
+		where: {
+			transactionId,
+		},
+		include: {
+			purchase: true,
+		},
+	});
+
+	if (!payment) {
+		throw new AppError(httpStatus.NOT_FOUND, "Payment not found");
+	}
+
+	// 2. Already paid check
+	if (payment.paymentStatus === PaymentStatus.PAID) {
+		return payment;
+	}
+
+	// 3. Execute bKash payment
+	const bkashResponse = await BkashService.executePayment(transactionId);
+
+	// 4. Check transaction status
+	if (bkashResponse.transactionStatus !== "Completed") {
+		await prisma.payment.update({
+			where: {
+				id: payment.id,
+			},
+			data: {
+				paymentStatus: PaymentStatus.FAILED,
+			},
+		});
+
+		throw new AppError(
+			httpStatus.BAD_REQUEST,
+			"bKash payment was not completed",
+		);
+	}
+
+	// 5. Update both tables atomically
+	const result = await prisma.$transaction(async (tx) => {
+		const updatedPayment = await tx.payment.update({
+			where: {
+				id: payment.id,
+			},
+			data: {
+				transactionId: bkashResponse.trxID,
+				paymentStatus: PaymentStatus.PAID,
 				paidAt: new Date(),
 			},
 		});
@@ -169,4 +235,5 @@ const executeBkashPayment = async (paymentId: string, userId: string) => {
 export const PaymentBkashService = {
 	createBkashPaymentService,
 	executeBkashPayment,
+	executeBkashPaymentByTransactionId,
 };

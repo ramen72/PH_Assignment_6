@@ -69,7 +69,7 @@ const createPayment = async (
 			body: JSON.stringify({
 				mode: "0011",
 				payerReference: invoiceNumber,
-				callbackURL: config.bkash_callback_url,
+				callbackURL: `${config.bkash_callback_url}/bkash/callback`,
 				amount: amount.toFixed(2),
 				currency: "BDT",
 				intent: "sale",

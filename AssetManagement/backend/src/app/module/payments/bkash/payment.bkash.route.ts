@@ -27,4 +27,6 @@ router.post(
 	PaymentBkashController.executeBkashPayment,
 );
 
+router.get("/callback", PaymentBkashController.bkashCallback);
+
 export const PaymentBkashRoutes = router;

@@ -57,7 +57,37 @@ const executeBkashPayment = catchAsync(async (req: Request, res: Response) => {
 	});
 });
 
+const bkashCallback = catchAsync(async (req: Request, res: Response) => {
+	const { paymentID, status, signature, apiVersion } = req.query;
+
+	// Validate paymentID
+	if (typeof paymentID !== "string" || !paymentID) {
+		throw new AppError(httpStatus.BAD_REQUEST, "bKash paymentID is required");
+	}
+
+	// Check bKash callback status
+	if (status !== "success") {
+		return res.status(httpStatus.BAD_REQUEST).json({
+			success: false,
+			message: "bKash payment was not successful",
+			status,
+		});
+	}
+
+	// Execute payment using bKash paymentID
+	const result =
+		await PaymentBkashService.executeBkashPaymentByTransactionId(paymentID);
+
+	sendResponse(res, {
+		statusCode: httpStatus.OK,
+		success: true,
+		message: "bKash payment completed successfully",
+		data: result,
+	});
+});
+
 export const PaymentBkashController = {
 	createBkashPayment,
 	executeBkashPayment,
+	bkashCallback,
 };
