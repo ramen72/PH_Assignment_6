@@ -1,3 +1,4 @@
+/* cspell:ignore Bkash, bkash */
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import express, {
@@ -6,17 +7,18 @@ import express, {
 	type Response,
 } from "express";
 import httpStatus from "http-status";
+
 import config from "./app/config";
 import { globalErrorHandler } from "./app/middleware/globalErrorHandler";
 import { notFound } from "./app/middleware/notFound";
-import { AuthRoutes } from "./app/module/auth/auth.route";
-import { TestRoutes } from "./app/module/test/test.route";
 // import { UserRoutes } from "./app/module/user/user.route";
 import { AssetRoutes } from "./app/module/asset/asset.route";
-import { AssetCategoryRoutes } from "./app/module/category/category.route";
-import { VendorRoutes } from "./app/module/vendor/vendor.route";
 import { AssetPurchaseRoutes } from "./app/module/assetPurchase/assetPurchase.route";
+import { AuthRoutes } from "./app/module/auth/auth.route";
+import { AssetCategoryRoutes } from "./app/module/category/category.route";
 import { PaymentBkashRoutes } from "./app/module/payments/bkash/payment.bkash.route";
+import { TestRoutes } from "./app/module/test/test.route";
+import { VendorRoutes } from "./app/module/vendor/vendor.route";
 
 const app: Application = express();
 
