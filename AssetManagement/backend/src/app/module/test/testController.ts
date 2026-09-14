@@ -33,10 +33,14 @@ const testOne = async (req: Request, res: Response, next: NextFunction) => {
 	}
 };
 
-const bkashTokenController = async (req: Request, res: Response, next: NextFunction) => {
+const bkashTokenController = async (
+	req: Request,
+	res: Response,
+	next: NextFunction,
+) => {
 	try {
-		const bkashToken = await BkashService.getBkashToken()
-		console.log(bkashToken)
+		const bkashToken = await BkashService.getBkashToken();
+		console.log(bkashToken);
 	} catch (error) {
 		console.log(error);
 		next(error);
@@ -45,5 +49,5 @@ const bkashTokenController = async (req: Request, res: Response, next: NextFunct
 
 export const TestController = {
 	testOne,
-	bkashTokenController
+	bkashTokenController,
 };

@@ -1,132 +1,132 @@
 import config from "../../../config";
-import type { IBkashCreatePaymentResponse, IBkashExecutePaymentResponse, IBkashGrantTokenResponse } from "./payment.bkash.interface";
+import type {
+	IBkashCreatePaymentResponse,
+	IBkashExecutePaymentResponse,
+	IBkashGrantTokenResponse,
+} from "./payment.bkash.interface";
 
 let bkashToken: string | null = null;
 let tokenExpireAt = 0;
 
 const getBkashToken = async (): Promise<string> => {
-  // Return existing valid token
-  if (bkashToken && Date.now() < tokenExpireAt) {
-    return bkashToken;
-  }
+	// Return existing valid token
+	if (bkashToken && Date.now() < tokenExpireAt) {
+		return bkashToken;
+	}
 
-  const response = await fetch(
-    `${config.bkash_base_url}/tokenized/checkout/token/grant`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-        username: config.bkash_username,
-        password: config.bkash_password,
-      },
-      body: JSON.stringify({
-        app_key: config.bkash_app_key,
-        app_secret: config.bkash_app_secret,
-      }),
-    },
-  );
+	const response = await fetch(
+		`${config.bkash_base_url}/tokenized/checkout/token/grant`,
+		{
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+				Accept: "application/json",
+				username: config.bkash_username,
+				password: config.bkash_password,
+			},
+			body: JSON.stringify({
+				app_key: config.bkash_app_key,
+				app_secret: config.bkash_app_secret,
+			}),
+		},
+	);
 
-  if (!response.ok) {
-    const errorData = await response.text();
+	if (!response.ok) {
+		const errorData = await response.text();
 
-    throw new Error(
-      `bKash token request failed: ${response.status} ${errorData}`,
-    );
-  }
+		throw new Error(
+			`bKash token request failed: ${response.status} ${errorData}`,
+		);
+	}
 
-  const data =
-    (await response.json()) as IBkashGrantTokenResponse;
+	const data = (await response.json()) as IBkashGrantTokenResponse;
 
-  bkashToken = data.id_token;
+	bkashToken = data.id_token;
 
-  // Keep 60 seconds safety buffer
-  tokenExpireAt =
-    Date.now() + (data.expires_in - 60) * 1000;
+	// Keep 60 seconds safety buffer
+	tokenExpireAt = Date.now() + (data.expires_in - 60) * 1000;
 
-  return bkashToken;
+	return bkashToken;
 };
 
 const createPayment = async (
-  amount: number,
-  invoiceNumber: string,
+	amount: number,
+	invoiceNumber: string,
 ): Promise<IBkashCreatePaymentResponse> => {
-  const token = await getBkashToken();
-  console.log(token)
+	const token = await getBkashToken();
+	console.log(token);
 
-  const response = await fetch(
-    `${config.bkash_base_url}/tokenized/checkout/create`,
-    {
-      method: "POST",
-      headers: {
-					"Content-Type": "application/json",
-					Accept: "application/json",
-					Authorization: token,
-					"X-App-Key": config.bkash_app_key,
-				},
-      body: JSON.stringify({
-        mode: "0011",
-        payerReference: invoiceNumber,
-        callbackURL: config.bkash_callback_url,
-        amount: amount.toFixed(2),
-        currency: "BDT",
-        intent: "sale",
-        merchantInvoiceNumber: invoiceNumber,
-      }),
-    },
-  );
+	const response = await fetch(
+		`${config.bkash_base_url}/tokenized/checkout/create`,
+		{
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+				Accept: "application/json",
+				Authorization: token,
+				"X-App-Key": config.bkash_app_key,
+			},
+			body: JSON.stringify({
+				mode: "0011",
+				payerReference: invoiceNumber,
+				callbackURL: config.bkash_callback_url,
+				amount: amount.toFixed(2),
+				currency: "BDT",
+				intent: "sale",
+				merchantInvoiceNumber: invoiceNumber,
+			}),
+		},
+	);
 
-  if (!response.ok) {
-    const errorData = await response.text();
+	if (!response.ok) {
+		const errorData = await response.text();
 
-    throw new Error(
-      `bKash create payment failed: ${response.status} ${errorData}`,
-    );
-  }
+		throw new Error(
+			`bKash create payment failed: ${response.status} ${errorData}`,
+		);
+	}
 
-  const data =
-    (await response.json()) as IBkashCreatePaymentResponse;
+	const data = (await response.json()) as IBkashCreatePaymentResponse;
 
-  return data;
+	return data;
 };
 
 const executePayment = async (
-  paymentID: string,
+	paymentID: string,
 ): Promise<IBkashExecutePaymentResponse> => {
-  const token = await getBkashToken();
+	const token = await getBkashToken();
 
-  const response = await fetch(
-    `${config.bkash_base_url}/tokenized/checkout/execute`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-        Authorization: token,
-        "X-APP-Key": config.bkash_app_key,
-      },
-      body: JSON.stringify({
-        paymentID,
-      }),
-    },
-  );
+	const response = await fetch(
+		`${config.bkash_base_url}/tokenized/checkout/execute`,
+		{
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+				Accept: "application/json",
+				Authorization: token,
+				"X-APP-Key": config.bkash_app_key,
+			},
+			body: JSON.stringify({
+				paymentID,
+			}),
+		},
+	);
 
-  const data =
-    (await response.json()) as IBkashExecutePaymentResponse;
+	const data = (await response.json()) as IBkashExecutePaymentResponse;
 
-  if (!response.ok) {
-    const errorData = await response.text();
+	if (!response.ok) {
+		const errorData = await response.text();
 
-    throw new Error(
-      `bKash execute payment failed: ${response.status} ${errorData}`,
-    );
-  }
+		throw new Error(
+			`bKash execute payment failed: ${response.status} ${errorData}`,
+		);
+	}
 
-  return data;
+	return data;
 };
 
 export const BkashService = {
-  getBkashToken,
-  createPayment,
-  executePayment,
+	getBkashToken,
+	createPayment,
+	executePayment,
 };

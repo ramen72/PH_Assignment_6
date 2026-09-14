@@ -1,4 +1,8 @@
-import { type Asset, PaymentStatus, Prisma } from "../../../generated/prisma/client";
+import {
+	type Asset,
+	PaymentStatus,
+	Prisma,
+} from "../../../generated/prisma/client";
 import { prisma } from "../../lib/prisma";
 import { AppError } from "../../utils/AppError";
 import { paginationHelper } from "../../utils/paginationHelper";
