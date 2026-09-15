@@ -54,9 +54,9 @@ const createAssetRequestService = async (
 
 	const result = await prisma.assetRequest.create({
 		data: {
+			requestedAssetId,
 			employeeId: userId,
 			categoryId,
-			requestedAssetId,
 			quantity,
 			reason,
 		},
@@ -79,8 +79,7 @@ const createAssetRequestService = async (
 // Get All Asset Requests
 const getAllAssetRequestsService = async (
 	filters: IAssetRequestFilterRequest,
-	// options: IAssetRequestOptions,
-	options: IPaginationOptions,
+	options: IAssetRequestOptions,
 ) => {
 	const { searchTerm, employeeId, categoryId, requestedAssetId, status } =
 		filters;

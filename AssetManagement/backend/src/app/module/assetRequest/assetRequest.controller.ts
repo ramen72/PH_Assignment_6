@@ -7,7 +7,10 @@ import { AssetRequestService } from "./assetRequest.service";
 
 // Create Request Controller
 const createAssetRequest = catchAsync(async (req: Request, res: Response) => {
-	const userId = req.user.id;
+	if(!req.user){
+		throw new AppError(httpStatus.UNAUTHORIZED,"User ID not found.")
+	}
+	const userId = req.user.userId;
 
 	const result = await AssetRequestService.createAssetRequestService(
 		userId,
