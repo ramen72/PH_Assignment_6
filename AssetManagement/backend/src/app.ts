@@ -14,12 +14,12 @@ import { notFound } from "./app/middleware/notFound";
 import { AssetRoutes } from "./app/module/asset/asset.route";
 import { AssetAssignmentRoutes } from "./app/module/assetAssignment/assetAssignment.route";
 import { AssetPurchaseRoutes } from "./app/module/assetPurchase/assetPurchase.route";
+import { AssetRequestRoutes } from "./app/module/assetRequest/assetRequest.route";
 import { AuthRoutes } from "./app/module/auth/auth.route";
 import { AssetCategoryRoutes } from "./app/module/category/category.route";
 import { PaymentBkashRoutes } from "./app/module/payments/bkash/payment.bkash.route";
 import { TestRoutes } from "./app/module/test/test.route";
 import { VendorRoutes } from "./app/module/vendor/vendor.route";
-import { AssetRequestRoutes } from "./app/module/assetRequest/assetRequest.route";
 
 const app: Application = express();
 

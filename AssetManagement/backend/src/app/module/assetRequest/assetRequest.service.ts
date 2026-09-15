@@ -13,7 +13,6 @@ import type {
 } from "./assetRequest.interface";
 
 
-
 // Create Asset Request
 const createAssetRequestService = async (
 	userId: string,
@@ -87,7 +86,7 @@ const getAllAssetRequestsService = async (
 		filters;
 
 	const { page, limit, skip, sortBy, sortOrder } =
-		paginationHelper.calculatePagination(options);
+		paginationHelper.calculatePagination(options as IPaginationOptions);
 
 	const andConditions: Prisma.AssetRequestWhereInput[] = [];
 
@@ -188,6 +187,7 @@ const getAllAssetRequestsService = async (
 			page,
 			limit,
 			total,
+			totalPages: Math.ceil(total / limit),
 		},
 		data: result,
 	};
@@ -388,9 +388,7 @@ const updateAssetRequestService = async (
 		where: {
 			id,
 		},
-
 		data: payload,
-
 		include: {
 			category: true,
 			requestedAsset: true,
