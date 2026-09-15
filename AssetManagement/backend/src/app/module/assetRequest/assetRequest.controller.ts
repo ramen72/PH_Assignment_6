@@ -10,6 +10,7 @@ import { AssetRequestService } from "./assetRequest.service";
 
 // Create Request Controller
 const createAssetRequest = catchAsync(async (req: Request, res: Response) => {
+	console.log("Asset Request.")
 	const userId = req.user.id;
 
 	const result = await AssetRequestService.createAssetRequestService(

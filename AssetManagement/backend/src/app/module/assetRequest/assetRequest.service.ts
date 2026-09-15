@@ -1,19 +1,18 @@
-import { AssetRequestStatus, Prisma } from "../../generated/prisma/client";
-
-import prisma from "../../shared/prisma";
-
-import {
+import httpStatus from "http-status";
+import type { Prisma } from "../../../generated/prisma/client";
+import { AssetRequestStatus } from './../../../generated/prisma/enums';
+import { prisma } from "../../lib/prisma";
+import { AppError } from "../../utils/AppError";
+import { paginationHelper } from "../../utils/paginationHelper";
+import type { IPaginationOptions } from "../asset/asset.interface";
+import type {
 	IAssetRequestFilterRequest,
 	IAssetRequestOptions,
 	ICreateAssetRequestPayload,
 	IUpdateAssetRequestPayload,
 } from "./assetRequest.interface";
 
-import { paginationHelper } from "../../helpers/paginationHelper";
 
-import { AppError } from "../../errors/AppError";
-
-import httpStatus from "http-status";
 
 // Create Asset Request
 const createAssetRequestService = async (
@@ -81,7 +80,8 @@ const createAssetRequestService = async (
 // Get All Asset Requests
 const getAllAssetRequestsService = async (
 	filters: IAssetRequestFilterRequest,
-	options: IAssetRequestOptions,
+	// options: IAssetRequestOptions,
+	options: IPaginationOptions,
 ) => {
 	const { searchTerm, employeeId, categoryId, requestedAssetId, status } =
 		filters;

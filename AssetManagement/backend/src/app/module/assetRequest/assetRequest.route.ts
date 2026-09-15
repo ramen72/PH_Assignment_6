@@ -1,25 +1,16 @@
 import { Router } from "express";
-
+import { UserRole } from "../../../generated/prisma/enums";
+import { auth } from "../../middleware/checkAuth";
 import { AssetRequestController } from "./assetRequest.controller";
 
-import { auth } from "../../middleware/auth";
 
-import { validateRequest } from "../../middleware/validateRequest";
-
-import {
-	createAssetRequestSchema,
-	updateAssetRequestSchema,
-	rejectAssetRequestSchema,
-} from "./assetRequest.validation";
-
-import { UserRole } from "../../generated/prisma/client";
 
 const router = Router();
 
 // Create Asset Request
 router.post(
 	"/",
-	auth(UserRole.EMPLOYEE, UserRole.ADMIN, UserRole.MANAGER),
+	auth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.MANAGER, UserRole.EMPLOYEE),
 	// validateRequest(createAssetRequestSchema),
 	AssetRequestController.createAssetRequest,
 );

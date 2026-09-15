@@ -45,7 +45,7 @@ app.use("/api/v1/vendors", VendorRoutes);
 app.use("/api/v1/assetPurchases", AssetPurchaseRoutes);
 app.use("/api/v1/bkash", PaymentBkashRoutes);
 app.use("/api/v1/assetAssignments", AssetAssignmentRoutes);
-app.use("/api/assetRequests", AssetRequestRoutes);
+app.use("/api/v1/assetRequests", AssetRequestRoutes);
 
 // Test Routes
 app.use("/", TestRoutes);
