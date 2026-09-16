@@ -4,9 +4,10 @@ import { auth } from "../../middleware/checkAuth";
 import { validateRequest } from "../../middleware/validateRequest";
 import { AssetAssignmentController } from "./assetAssignment.controller";
 import {
-	createAssetAssignmentValidationSchema,
-	returnAssetAssignmentValidationSchema,
-	updateAssetAssignmentValidationSchema,
+	assetAssignmentValidationIdZodSchema,
+	createAssetAssignmentValidationZodSchema,
+	returnAssetAssignmentValidationZodSchema,
+	updateAssetAssignmentValidationZodSchema,
 } from "./assetAssignment.validation";
 
 const router = Router();
@@ -15,7 +16,7 @@ const router = Router();
 router.post(
 	"/",
 	auth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.MANAGER),
-	// validateRequest(createAssetAssignmentValidationSchema),
+	validateRequest(createAssetAssignmentValidationZodSchema),
 	AssetAssignmentController.createAssetAssignment,
 );
 
@@ -29,6 +30,7 @@ router.get(
 // GET SINGLE ASSIGNMENT
 router.get(
 	"/:id",
+	validateRequest(assetAssignmentValidationIdZodSchema),
 	auth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.MANAGER),
 	AssetAssignmentController.getSingleAssetAssignment,
 );
@@ -37,7 +39,8 @@ router.get(
 router.patch(
 	"/return/:id",
 	auth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.MANAGER),
-	// validateRequest(returnAssetAssignmentValidationSchema),
+	validateRequest(assetAssignmentValidationIdZodSchema),
+	validateRequest(returnAssetAssignmentValidationZodSchema),
 	AssetAssignmentController.returnAssetAssignment,
 );
 
@@ -45,7 +48,8 @@ router.patch(
 router.patch(
 	"/update/:id",
 	auth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.MANAGER),
-	// validateRequest(updateAssetAssignmentValidationSchema),
+	validateRequest(assetAssignmentValidationIdZodSchema),
+	validateRequest(updateAssetAssignmentValidationZodSchema),
 	AssetAssignmentController.updateAssetAssignment,
 );
 

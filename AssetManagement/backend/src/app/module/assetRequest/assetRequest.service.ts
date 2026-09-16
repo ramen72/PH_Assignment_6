@@ -1,6 +1,6 @@
 import httpStatus from "http-status";
 import type { Prisma } from "../../../generated/prisma/client";
-import { AssetRequestStatus } from './../../../generated/prisma/enums';
+import { AssetRequestStatus } from "./../../../generated/prisma/enums";
 import { prisma } from "../../lib/prisma";
 import { AppError } from "../../utils/AppError";
 import { paginationHelper } from "../../utils/paginationHelper";
@@ -11,7 +11,6 @@ import type {
 	ICreateAssetRequestPayload,
 	IUpdateAssetRequestPayload,
 } from "./assetRequest.interface";
-
 
 // Create Asset Request
 const createAssetRequestService = async (

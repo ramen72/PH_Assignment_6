@@ -8,7 +8,7 @@ export const createAssetRequestSchema = z.object({
 
 		requestedAssetId: uuidSchema.optional(),
 
-		quantity: z
+		quantity: z.coerce
 			.number()
 			.int("Quantity must be an integer")
 			.min(1, "Quantity must be at least 1"),
@@ -49,5 +49,11 @@ export const rejectAssetRequestSchema = z.object({
 			.trim()
 			.min(5, "Rejection reason must be at least 5 characters")
 			.max(1000, "Rejection reason cannot exceed 1000 characters"),
+	}),
+});
+
+export const assetRequestSchemaIdZodSchema = z.object({
+	params: z.object({
+		id: z.uuid("Invalid asset purchase ID"),
 	}),
 });

@@ -715,6 +715,7 @@ export const resetPasswordService = async (payload: IResetPasswordPayload) => {
 };
 
 const userLoginService = async (payload: ILoginUserPayload) => {
+	console.log(payload);
 	const { password } = payload;
 	const email = payload.email.trim().toLowerCase();
 

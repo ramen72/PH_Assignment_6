@@ -1,54 +1,40 @@
 import { Router } from "express";
+import { validateRequest } from "../../middleware/validateRequest";
+import { VendorController } from "./vendor.controller";
 import {
 	CreateVendorZodSchema,
 	UpdateVendorZodSchema,
 } from "./vendor.validation";
-import { validateRequest } from "../../middleware/validateRequest";
-import { VendorController } from "./vendor.controller";
 
 const router = Router();
 
-/**
- * Create Vendor
- */
+// Create Vendor
 router.post(
 	"/",
 	validateRequest(CreateVendorZodSchema),
 	VendorController.createVendor,
 );
 
-/**
- * Get All Vendors
- */
+// Get All Vendors
 router.get("/", VendorController.getAllVendors);
 
-/**
- * Get Single Vendor
- */
+// Get Single Vendor
 router.get("/:id", VendorController.getSingleVendor);
 
-/**
- * Update Vendor
- */
+// Update Vendor
 router.patch(
 	"/:id",
 	validateRequest(UpdateVendorZodSchema),
 	VendorController.updateVendor,
 );
 
-/**
- * Delete Vendor
- */
+// Delete Vendor
 router.delete("/:id", VendorController.deleteVendor);
 
-/**
- * Activate Vendor
- */
+// Activate Vendor
 router.patch("/:id/activate", VendorController.activateVendor);
 
-/**
- * Deactivate Vendor
- */
+// Deactivate Vendor
 router.patch("/:id/deactivate", VendorController.deactivateVendor);
 
 export const VendorRoutes = router;

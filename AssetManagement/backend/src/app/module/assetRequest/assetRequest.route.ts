@@ -1,7 +1,14 @@
 import { Router } from "express";
 import { UserRole } from "../../../generated/prisma/enums";
 import { auth } from "../../middleware/checkAuth";
+import { validateRequest } from "../../middleware/validateRequest";
 import { AssetRequestController } from "./assetRequest.controller";
+import {
+	assetRequestSchemaIdZodSchema,
+	createAssetRequestSchema,
+	rejectAssetRequestSchema,
+	updateAssetRequestSchema,
+} from "./assetRequest.validation";
 
 const router = Router();
 
@@ -14,7 +21,7 @@ router.post(
 		UserRole.MANAGER,
 		UserRole.EMPLOYEE,
 	),
-	// validateRequest(createAssetRequestSchema),
+	validateRequest(createAssetRequestSchema),
 	AssetRequestController.createAssetRequest,
 );
 
@@ -22,7 +29,7 @@ router.post(
 router.get(
 	"/",
 	auth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.MANAGER),
-	// validateRequest(createAssetRequestSchema),
+	validateRequest(createAssetRequestSchema),
 	AssetRequestController.getAllAssetRequests,
 );
 
@@ -35,6 +42,7 @@ router.get(
 		UserRole.MANAGER,
 		UserRole.EMPLOYEE,
 	),
+	validateRequest(assetRequestSchemaIdZodSchema),
 	AssetRequestController.getMyAssetRequests,
 );
 // Get My Requests
@@ -58,7 +66,8 @@ router.patch(
 		UserRole.MANAGER,
 		UserRole.EMPLOYEE,
 	),
-	//   validateRequest(updateAssetRequestSchema),
+	validateRequest(assetRequestSchemaIdZodSchema),
+	validateRequest(updateAssetRequestSchema),
 	AssetRequestController.updateAssetRequest,
 );
 
@@ -71,6 +80,7 @@ router.patch(
 		UserRole.MANAGER,
 		UserRole.EMPLOYEE,
 	),
+	validateRequest(assetRequestSchemaIdZodSchema),
 	AssetRequestController.cancelAssetRequest,
 );
 
@@ -78,6 +88,7 @@ router.patch(
 router.patch(
 	"/approve/:id",
 	auth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.MANAGER),
+	validateRequest(assetRequestSchemaIdZodSchema),
 	AssetRequestController.approveAssetRequest,
 );
 
@@ -85,7 +96,8 @@ router.patch(
 router.patch(
 	"/reject/:id",
 	auth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.MANAGER),
-	//   validateRequest(rejectAssetRequestSchema),
+	validateRequest(assetRequestSchemaIdZodSchema),
+	validateRequest(rejectAssetRequestSchema),
 	AssetRequestController.rejectAssetRequest,
 );
 
@@ -93,6 +105,7 @@ router.patch(
 router.delete(
 	"/:id",
 	auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
+	validateRequest(assetRequestSchemaIdZodSchema),
 	AssetRequestController.deleteAssetRequest,
 );
 

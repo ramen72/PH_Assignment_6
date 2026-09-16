@@ -1,8 +1,8 @@
 import { Router } from "express";
-
-import { AssetCategoryController } from "./category.controller";
 import { validateRequest } from "../../middleware/validateRequest";
+import { AssetCategoryController } from "./category.controller";
 import {
+	AssetCategoryZodSchema,
 	CreateAssetCategoryZodSchema,
 	UpdateAssetCategoryZodSchema,
 } from "./category.validation";
@@ -17,7 +17,11 @@ router.post(
 
 router.get("/", AssetCategoryController.getAllAssetCategories);
 
-router.get("/:id", AssetCategoryController.getSingleAssetCategory);
+router.get(
+	"/:id",
+	validateRequest(AssetCategoryZodSchema),
+	AssetCategoryController.getSingleAssetCategory,
+);
 
 router.patch(
 	"/:id",

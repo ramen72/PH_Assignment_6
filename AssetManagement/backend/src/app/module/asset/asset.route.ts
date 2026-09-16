@@ -1,5 +1,6 @@
 import express from "express";
-
+import { UserRole } from "../../../generated/prisma/enums";
+import { auth } from "../../middleware/checkAuth";
 import { validateRequest } from "../../middleware/validateRequest";
 import { AssetController } from "./asset.controller";
 import {
@@ -7,15 +8,13 @@ import {
 	createAssetZodSchema,
 	updateAssetZodSchema,
 } from "./asset.validation";
-import { auth } from "../../middleware/checkAuth";
-import { UserRole } from "../../../generated/prisma/enums";
 
 const router = express.Router();
 
 // Create Asset
 router.post(
 	"/",
-	// validateRequest(createAssetZodSchema),
+	validateRequest(createAssetZodSchema),
 	auth(
 		UserRole.SUPER_ADMIN,
 		UserRole.ADMIN,

@@ -1,40 +1,11 @@
 import type { NextFunction, Request, Response } from "express";
 import httpStatus from "http-status";
-import type { ZodObject, ZodRawShape } from "zod";
+import { z } from "zod";
 
 import { AppError } from "../utils/AppError";
 import { catchAsync } from "../utils/catchAsync";
 
-export const validateRequest = (zodSchema: ZodObject<ZodRawShape>) => {
-	return catchAsync((req: Request, res: Response, next: NextFunction) => {
-		const payload = req.body ?? {};
-		const result = zodSchema.safeParse(payload);
-
-		if (!result.success) {
-			console.log(result.error);
-			console.log(result.error.issues);
-			throw new AppError(
-				httpStatus.BAD_REQUEST,
-				result?.error?.issues[0].message,
-			);
-		}
-
-		req.body = result.data;
-
-		next();
-	});
-};
-
-/*
-// ========================================
-import type { NextFunction, Request, Response } from "express";
-import httpStatus from "http-status";
-import type { ZodObject, ZodRawShape } from "zod";
-
-import { AppError } from "../utils/AppError";
-import { catchAsync } from "../utils/catchAsync";
-
-export const validateRequest = (zodSchema: ZodObject<ZodRawShape>) => {
+export const validateRequest = (zodSchema: z.ZodType) => {
 	return catchAsync(async (req: Request, res: Response, next: NextFunction) => {
 		const payload = {
 			body: req.body,
@@ -45,7 +16,7 @@ export const validateRequest = (zodSchema: ZodObject<ZodRawShape>) => {
 		const result = zodSchema.safeParse(payload);
 
 		if (!result.success) {
-			console.log("Validation Error:", result.error.issues);
+			console.log("Validation errors:", result.error.issues);
 
 			throw new AppError(
 				httpStatus.BAD_REQUEST,
@@ -53,11 +24,24 @@ export const validateRequest = (zodSchema: ZodObject<ZodRawShape>) => {
 			);
 		}
 
-		req.body = result.data.body ?? req.body;
+		const validatedData = result.data as {
+			body?: unknown;
+			params?: unknown;
+			query?: unknown;
+		};
+
+		if (validatedData.body !== undefined) {
+			req.body = validatedData.body;
+		}
+
+		if (validatedData.params !== undefined) {
+			req.params = validatedData.params as typeof req.params;
+		}
+
+		if (validatedData.query !== undefined) {
+			req.query = validatedData.query as typeof req.query;
+		}
 
 		next();
 	});
 };
-
-// ========================================
-*/

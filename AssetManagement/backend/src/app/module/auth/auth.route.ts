@@ -22,7 +22,7 @@ router.post(
 
 router.post(
 	"/verifyEmail",
-	validateRequest(UserEmailVerifyZodSchema),
+	// validateRequest(UserEmailVerifyZodSchema),
 	AuthController.verifyUserEmail,
 );
 router.post("/google", AuthController.googleLoginController);
