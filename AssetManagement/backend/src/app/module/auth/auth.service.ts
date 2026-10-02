@@ -1,10 +1,10 @@
-import bcrypt from "bcryptjs";
-import ejs from "ejs";
-import httpStatus from "http-status";
-import type { TokenPayload } from "google-auth-library";
-import type { JwtPayload, SignOptions } from "jsonwebtoken";
 import crypto from "node:crypto";
 import path from "node:path";
+import bcrypt from "bcryptjs";
+import ejs from "ejs";
+import type { TokenPayload } from "google-auth-library";
+import httpStatus from "http-status";
+import type { JwtPayload, SignOptions } from "jsonwebtoken";
 
 import {
 	AuthProvider,
