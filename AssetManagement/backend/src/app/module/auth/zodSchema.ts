@@ -22,9 +22,9 @@ export const UserRegisterZodSchema = z.object({
 				message: "Password must contain at least one special character.",
 			}),
 		phone: z
-			.string("Phone number must be a string.")
-			.regex(/^01[3-9]\d{8}$/, {
-				message: "Please provide a valid Bangladesh phone number.",
+			.string()
+			.refine((val) => val === "" || /^(?:\+880|0)1[3-9]\d{8}$/.test(val), {
+				message: "Please provide valid Bangladeshi number",
 			})
 			.optional(),
 		department: z
