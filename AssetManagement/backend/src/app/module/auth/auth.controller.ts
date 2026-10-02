@@ -1,10 +1,10 @@
 import type { Request, Response } from "express";
 import httpStatus from "http-status";
+import config from "../../config";
+import { AppError } from "../../utils/AppError";
 import { catchAsync } from "../../utils/catchAsync";
 import { sendResponse } from "../../utils/sendResponse";
 import { AuthService } from "./auth.service";
-import config from "../../config";
-import { AppError } from "../../utils/AppError";
 
 const userRegister = catchAsync(async (req: Request, res: Response) => {
 	const payload = req.body;
