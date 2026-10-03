@@ -59,11 +59,8 @@ const userRegisterService = async (payload: IUserRegisterPayload) => {
 
 	// Generate 6 digit OTP
 	const otpValue = crypto.randomInt(100000, 1000000).toString();
-
-	// ============================
+	
 	// Store OTP in Redis
-	// ============================
-
 	const otpKey = `user-registration-otp:${email}`;
 
 	await redisClient.set(otpKey, otpValue, {
@@ -73,10 +70,8 @@ const userRegisterService = async (payload: IUserRegisterPayload) => {
 		},
 	});
 
-	// ============================
+	
 	// Store Registration Data
-	// ============================
-
 	const userRegistrationKey = `user-registration-data:${email}`;
 
 	const redisUserDataPayload = {
@@ -100,10 +95,8 @@ const userRegisterService = async (payload: IUserRegisterPayload) => {
 		},
 	);
 
-	// ============================
+	
 	// Email OTP
-	// ============================
-
 	const templatePath = path.join(
 		process.cwd(),
 		"src/app/templates/registrationOTP.ejs",
@@ -318,7 +311,6 @@ export const googleLoginService = async (payload: IGoogleLoginPayload) => {
 	let googleIdTokenPayload: TokenPayload | null | undefined = null;
 
 	// 1. Verify Google ID Token
-
 	try {
 		const ticket = await googleClient.verifyIdToken({
 			idToken: payload.idToken,
@@ -336,7 +328,6 @@ export const googleLoginService = async (payload: IGoogleLoginPayload) => {
 	}
 
 	// 2. Validate Google Payload
-
 	if (!googleIdTokenPayload) {
 		throw new AppError(
 			httpStatus.NOT_FOUND,
@@ -369,7 +360,6 @@ export const googleLoginService = async (payload: IGoogleLoginPayload) => {
 	const name = googleIdTokenPayload.name;
 
 	// 3. Find Existing User by Email
-
 	const existingUser = await prisma.user.findUnique({
 		where: {
 			email,
@@ -382,9 +372,8 @@ export const googleLoginService = async (payload: IGoogleLoginPayload) => {
 	// 4. Existing User
 
 	if (existingUser) {
-		// ------------------------------------------
-		// Check Role
-		// ------------------------------------------
+		
+		// Check Role		
 		if (existingUser.role !== UserRole.EMPLOYEE) {
 			throw new AppError(
 				httpStatus.UNAUTHORIZED,
@@ -392,16 +381,13 @@ export const googleLoginService = async (payload: IGoogleLoginPayload) => {
 			);
 		}
 
-		// ------------------------------------------
-		// Check Deleted
-		// ------------------------------------------
+		
+		// Check Deleted		
 		if (existingUser.isDeleted || existingUser.status === UserStatus.DELETED) {
 			throw new AppError(httpStatus.GONE, "User is deleted.");
 		}
 
-		// ------------------------------------------
 		// Check Blocked
-		// ------------------------------------------
 		if (existingUser.status === UserStatus.BLOCKED) {
 			throw new AppError(httpStatus.FORBIDDEN, "User is blocked.");
 		}
@@ -455,9 +441,7 @@ export const googleLoginService = async (payload: IGoogleLoginPayload) => {
 			},
 		});
 
-		// ========================================
 		// Send Welcome Email
-		// ========================================
 		const templatePath = path.join(
 			process.cwd(),
 			"src/app/templates/user-welcome-email.ejs",
@@ -481,10 +465,8 @@ export const googleLoginService = async (payload: IGoogleLoginPayload) => {
 			html,
 		});
 	}
-	console.log(user);
 
 	// 6. Final User Validation
-
 	if (!user) {
 		throw new AppError(httpStatus.NOT_FOUND, "User not found.");
 	}
@@ -520,9 +502,7 @@ export const googleLoginService = async (payload: IGoogleLoginPayload) => {
 		config.jwt_refresh_secret,
 		config.jwt_refresh_expires_in as SignOptions,
 	);
-	console.log(user);
-	console.log(refreshToken);
-	const data = await prisma.refreshToken.create({
+	await prisma.refreshToken.create({
 		data: {
 			userId: user.id,
 			token: refreshToken,
@@ -530,7 +510,7 @@ export const googleLoginService = async (payload: IGoogleLoginPayload) => {
 			revokedAt: null,
 		},
 	});
-	console.log(data);
+
 	// 10. Return Tokens
 	return {
 		accessToken,
