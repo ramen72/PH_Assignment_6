@@ -317,9 +317,8 @@ const verifyUserEmailService = async (payload: IVerifyEmailPayload) => {
 export const googleLoginService = async (payload: IGoogleLoginPayload) => {
 	let googleIdTokenPayload: TokenPayload | null | undefined = null;
 
-	
 	// 1. Verify Google ID Token
-	
+
 	try {
 		const ticket = await googleClient.verifyIdToken({
 			idToken: payload.idToken,
@@ -336,9 +335,8 @@ export const googleLoginService = async (payload: IGoogleLoginPayload) => {
 		);
 	}
 
-	
 	// 2. Validate Google Payload
-	
+
 	if (!googleIdTokenPayload) {
 		throw new AppError(
 			httpStatus.NOT_FOUND,
@@ -370,21 +368,19 @@ export const googleLoginService = async (payload: IGoogleLoginPayload) => {
 	const googleId = googleIdTokenPayload.sub;
 	const name = googleIdTokenPayload.name;
 
-	
 	// 3. Find Existing User by Email
-	
+
 	const existingUser = await prisma.user.findUnique({
 		where: {
 			email,
 		},
 	});
-	console.log(existingUser)
+	console.log(existingUser);
 
 	let user: any = null;
 
-	
 	// 4. Existing User
-	
+
 	if (existingUser) {
 		// ------------------------------------------
 		// Check Role
@@ -410,9 +406,8 @@ export const googleLoginService = async (payload: IGoogleLoginPayload) => {
 			throw new AppError(httpStatus.FORBIDDEN, "User is blocked.");
 		}
 
-		
 		// Existing Google User
-		
+
 		if (existingUser.googleId) {
 			// Different Google account using same email
 			if (existingUser.googleId !== googleId) {
@@ -486,11 +481,10 @@ export const googleLoginService = async (payload: IGoogleLoginPayload) => {
 			html,
 		});
 	}
-		console.log(user)
+	console.log(user);
 
-	
 	// 6. Final User Validation
-	
+
 	if (!user) {
 		throw new AppError(httpStatus.NOT_FOUND, "User not found.");
 	}
@@ -526,17 +520,17 @@ export const googleLoginService = async (payload: IGoogleLoginPayload) => {
 		config.jwt_refresh_secret,
 		config.jwt_refresh_expires_in as SignOptions,
 	);
-console.log(user)
-console.log(refreshToken)
+	console.log(user);
+	console.log(refreshToken);
 	const data = await prisma.refreshToken.create({
-		data:{
+		data: {
 			userId: user.id,
 			token: refreshToken,
 			expiresAt: getDateFromDuration(config.jwt_refresh_expires_in),
 			revokedAt: null,
-		}
-	})
-	console.log(data)
+		},
+	});
+	console.log(data);
 	// 10. Return Tokens
 	return {
 		accessToken,
