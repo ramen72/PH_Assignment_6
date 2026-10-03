@@ -47,19 +47,22 @@ const googleLoginController = catchAsync(
 
 		const { accessToken, refreshToken } = result;
 
+		 // Access Token
 		res.cookie("accessToken", accessToken, {
 			httpOnly: true,
-			secure: false,
-			sameSite: "none",
-			maxAge: 1000 * 60 * 60 * 24, // 24 hour or 1 day
-		});
-		res.cookie("refreshToken", refreshToken, {
-			httpOnly: true,
-			secure: false,
-			sameSite: "none",
-			maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
+			secure: config.node_env === "production",
+			sameSite: config.node_env === "production" ? "none" : "lax",
+			maxAge: 1000 * 60 * 60 * 24, // 1 day
 		});
 
+		// Refresh Token
+		res.cookie("refreshToken", refreshToken, {
+			httpOnly: true,
+			secure: config.node_env === "production",
+			sameSite: config.node_env === "production" ? "none" : "lax",
+			maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
+		});
+		
 		sendResponse(res, {
 			statusCode: httpStatus.OK,
 			success: true,
@@ -172,38 +175,38 @@ const userLogoutFromAllDevices = catchAsync(
 );
 
 const refreshToken = catchAsync(async (req: Request, res: Response) => {
-	const { refreshToken } = req.cookies;
+  const { refreshToken } = req.cookies;
 
-	if (!refreshToken) {
-		throw new AppError(httpStatus.BAD_REQUEST, "Refresh token is required");
-	}
-	const result = await AuthService.refreshTokenService(refreshToken);
-	const { accessToken, refreshToken: newRefreshToken } = result;
+  if (!refreshToken) {
+    throw new AppError(httpStatus.BAD_REQUEST, "Refresh token is required");
+  }
+  const result = await AuthService.refreshTokenService(refreshToken);
+  const { accessToken, refreshToken: newRefreshToken } = result;
 
-	// Access Token Cookie
-	res.cookie("accessToken", accessToken, {
-		httpOnly: true,
-		secure: config.node_env === "production",
-		sameSite: config.node_env === "production" ? "none" : "lax",
-		maxAge: 1000 * 60 * 60, // 1 hour
-	});
+  // Access Token Cookie
+  res.cookie("accessToken", accessToken, {
+    httpOnly: true,
+    secure: config.node_env === "production",
+    sameSite: config.node_env === "production" ? "none" : "lax",
+    maxAge: 1000 * 60 * 60, // 1 hour
+  });
 
-	// Refresh Token Cookie
-	res.cookie("refreshToken", newRefreshToken, {
-		httpOnly: true,
-		secure: config.node_env === "production",
-		sameSite: config.node_env === "production" ? "none" : "lax",
-		maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
-	});
-	sendResponse(res, {
-		statusCode: httpStatus.OK,
-		success: true,
-		message: "New tokens generated successfully",
-		data: {
-			accessToken,
-			refreshToken: newRefreshToken,
-		},
-	});
+  // Refresh Token Cookie
+  res.cookie("refreshToken", newRefreshToken, {
+    httpOnly: true,
+    secure: config.node_env === "production",
+    sameSite: config.node_env === "production" ? "none" : "lax",
+    maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
+  });
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "New tokens generated successfully",
+    data: {
+      accessToken,
+      refreshToken: newRefreshToken,
+    },
+  });
 });
 
 const getMe = catchAsync(async (req: Request, res: Response) => {
