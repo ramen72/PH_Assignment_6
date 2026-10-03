@@ -317,9 +317,9 @@ const verifyUserEmailService = async (payload: IVerifyEmailPayload) => {
 export const googleLoginService = async (payload: IGoogleLoginPayload) => {
 	let googleIdTokenPayload: TokenPayload | null | undefined = null;
 
-	// ==========================================
+	
 	// 1. Verify Google ID Token
-	// ==========================================
+	
 	try {
 		const ticket = await googleClient.verifyIdToken({
 			idToken: payload.idToken,
@@ -336,9 +336,9 @@ export const googleLoginService = async (payload: IGoogleLoginPayload) => {
 		);
 	}
 
-	// ==========================================
+	
 	// 2. Validate Google Payload
-	// ==========================================
+	
 	if (!googleIdTokenPayload) {
 		throw new AppError(
 			httpStatus.NOT_FOUND,
@@ -370,20 +370,21 @@ export const googleLoginService = async (payload: IGoogleLoginPayload) => {
 	const googleId = googleIdTokenPayload.sub;
 	const name = googleIdTokenPayload.name;
 
-	// ==========================================
+	
 	// 3. Find Existing User by Email
-	// ==========================================
+	
 	const existingUser = await prisma.user.findUnique({
 		where: {
 			email,
 		},
 	});
+	console.log(existingUser)
 
 	let user: any = null;
 
-	// ==========================================
+	
 	// 4. Existing User
-	// ==========================================
+	
 	if (existingUser) {
 		// ------------------------------------------
 		// Check Role
@@ -409,9 +410,9 @@ export const googleLoginService = async (payload: IGoogleLoginPayload) => {
 			throw new AppError(httpStatus.FORBIDDEN, "User is blocked.");
 		}
 
-		// ==========================================
+		
 		// Existing Google User
-		// ==========================================
+		
 		if (existingUser.googleId) {
 			// Different Google account using same email
 			if (existingUser.googleId !== googleId) {
@@ -420,14 +421,8 @@ export const googleLoginService = async (payload: IGoogleLoginPayload) => {
 					"This email is already linked with another Google account.",
 				);
 			}
-
 			user = existingUser;
-		}
-
-		// ==========================================
-		// Existing Email/Password User
-		// ==========================================
-		else {
+		} else {
 			// Email/password account must be verified
 			if (!existingUser.emailVerified) {
 				throw new AppError(
@@ -446,12 +441,8 @@ export const googleLoginService = async (payload: IGoogleLoginPayload) => {
 				},
 			});
 		}
-	}
-
-	// ==========================================
-	// 5. New Google User Registration
-	// ==========================================
-	else {
+	} else {
+		// 5. New Google User Registration
 		user = await prisma.user.create({
 			data: {
 				name,
@@ -495,10 +486,11 @@ export const googleLoginService = async (payload: IGoogleLoginPayload) => {
 			html,
 		});
 	}
+		console.log(user)
 
-	// ==========================================
+	
 	// 6. Final User Validation
-	// ==========================================
+	
 	if (!user) {
 		throw new AppError(httpStatus.NOT_FOUND, "User not found.");
 	}
@@ -511,37 +503,41 @@ export const googleLoginService = async (payload: IGoogleLoginPayload) => {
 		throw new AppError(httpStatus.GONE, "User is deleted.");
 	}
 
-	// ==========================================
 	// 7. Create JWT Payload
-	// ==========================================
 	const jwtPayload = {
 		userId: user.id,
 		name: user.name,
 		email: user.email,
 		role: user.role,
+		authProvider: user.authProvider,
+		googleId: user.googleId,
 	};
 
-	// ==========================================
 	// 8. Access Token
-	// ==========================================
 	const accessToken = jwtUtils.createToken(
 		jwtPayload,
 		config.jwt_access_secret,
 		config.jwt_access_expires_in as SignOptions,
 	);
 
-	// ==========================================
 	// 9. Refresh Token
-	// ==========================================
 	const refreshToken = jwtUtils.createToken(
 		jwtPayload,
 		config.jwt_refresh_secret,
 		config.jwt_refresh_expires_in as SignOptions,
 	);
-
-	// ==========================================
+console.log(user)
+console.log(refreshToken)
+	const data = await prisma.refreshToken.create({
+		data:{
+			userId: user.id,
+			token: refreshToken,
+			expiresAt: getDateFromDuration(config.jwt_refresh_expires_in),
+			revokedAt: null,
+		}
+	})
+	console.log(data)
 	// 10. Return Tokens
-	// ==========================================
 	return {
 		accessToken,
 		refreshToken,
@@ -716,7 +712,6 @@ export const resetPasswordService = async (payload: IResetPasswordPayload) => {
 };
 
 const userLoginService = async (payload: ILoginUserPayload) => {
-	console.log(payload);
 	const { password } = payload;
 	const email = payload.email.trim().toLowerCase();
 
@@ -807,6 +802,7 @@ const userLoginService = async (payload: ILoginUserPayload) => {
 };
 
 const userLogoutService = async (refreshToken: string) => {
+	console.log("refreshToken---- Server:", refreshToken);
 	if (!refreshToken) {
 		throw new AppError(httpStatus.BAD_REQUEST, "Refresh token is required");
 	}
