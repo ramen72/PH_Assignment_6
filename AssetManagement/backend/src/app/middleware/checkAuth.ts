@@ -39,6 +39,7 @@ export const auth = (...requiredRoles: UserRole[]) => {
 		if (!verifiedToken.success) {
 			throw new AppError(httpStatus.UNAUTHORIZED, verifiedToken.error);
 		}
+		console.log(verifiedToken);
 
 		const { email, name, userId, role } = verifiedToken.data as JwtPayload;
 

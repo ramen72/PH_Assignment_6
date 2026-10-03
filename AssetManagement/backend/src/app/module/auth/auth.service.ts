@@ -23,6 +23,7 @@ import type {
 	IForgotPasswordPayload,
 	IGoogleLoginPayload,
 	ILoginUserPayload,
+	IRequestUser,
 	IResetPasswordPayload,
 	IUserRegisterPayload,
 	IVerifyEmailPayload,
@@ -973,6 +974,57 @@ const refreshTokenService = async (token: string) => {
 	};
 };
 
+const getMeService = async (user: IRequestUser | undefined) => {
+	if (!user) {
+		throw new AppError(httpStatus.UNAUTHORIZED, "User information is missing.");
+	}
+
+	const result = await prisma.user.findUnique({
+		where: {
+			id: user.userId,
+		},
+		select: {
+			id: true,
+			name: true,
+			email: true,
+			emailVerified: true,
+			profileImage: true,
+			phone: true,
+			department: true,
+			designation: true,
+			role: true,
+			status: true,
+			authProvider: true,
+			isActive: true,
+			needPasswordChange: true,
+			createdAt: true,
+			updatedAt: true,
+
+			profile: {
+				select: {
+					id: true,
+					bio: true,
+					address: true,
+					city: true,
+					postalCode: true,
+					country: true,
+					dateOfBirth: true,
+					emergencyContactName: true,
+					emergencyContactPhone: true,
+					joiningDate: true,
+					employeeId: true,
+				},
+			},
+		},
+	});
+
+	if (!result) {
+		throw new AppError(httpStatus.NOT_FOUND, "User not found.");
+	}
+
+	return result;
+};
+
 export const AuthService = {
 	userRegisterService,
 	verifyUserEmailService,
@@ -983,4 +1035,5 @@ export const AuthService = {
 	userLogoutService,
 	userLogoutFromAllDevicesService,
 	refreshTokenService,
+	getMeService,
 };

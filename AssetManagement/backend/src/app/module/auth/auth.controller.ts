@@ -5,6 +5,7 @@ import { AppError } from "../../utils/AppError";
 import { catchAsync } from "../../utils/catchAsync";
 import { sendResponse } from "../../utils/sendResponse";
 import { AuthService } from "./auth.service";
+import { IRequestUser } from "./auth.interface";
 
 const userRegister = catchAsync(async (req: Request, res: Response) => {
 	const payload = req.body;
@@ -205,16 +206,17 @@ const refreshToken = catchAsync(async (req: Request, res: Response) => {
 	});
 });
 
-/*
-
 const getMe = catchAsync(async (req: Request, res: Response) => {
-	const user = req.user as unknown as IRequestUser;
+	const user = req.user as IRequestUser | undefined;
 
 	if (!user) {
-		throw new AppError(httpStatus.BAD_REQUEST,"User information is missing in the request");
+		throw new AppError(
+			httpStatus.BAD_REQUEST,
+			"User information is missing in the request",
+		);
 	}
 
-	const result = await AuthService.getMe(user);
+	const result = await AuthService.getMeService(user);
 	sendResponse(res, {
 		statusCode: httpStatus.OK,
 		success: true,
@@ -223,10 +225,6 @@ const getMe = catchAsync(async (req: Request, res: Response) => {
 	});
 });
 
-
-
-
-*/
 export const AuthController = {
 	userRegister,
 	verifyUserEmail,
@@ -237,7 +235,5 @@ export const AuthController = {
 	userLogout,
 	userLogoutFromAllDevices,
 	refreshToken,
-	/*
 	getMe,
-	*/
 };

@@ -68,17 +68,15 @@ router.post(
 
 router.post("/refreshToken", AuthController.refreshToken);
 
-/*
 router.get(
-	"/me",
-	auth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.MANAGER, UserRole.EMPLOYEE),
-	// validateRequest (if needed)
+	"/getMe",
+	auth(
+		UserRole.SUPER_ADMIN,
+		UserRole.ADMIN,
+		UserRole.MANAGER,
+		UserRole.EMPLOYEE,
+	),
 	AuthController.getMe,
 );
-router.post("/refresh-token", AuthController.refreshToken);
 
-
-
-
-*/
 export const AuthRoutes = router;
