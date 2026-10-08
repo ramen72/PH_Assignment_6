@@ -4,6 +4,7 @@ import { AppError } from "../../../utils/AppError";
 import { catchAsync } from "../../../utils/catchAsync";
 import { sendResponse } from "../../../utils/sendResponse";
 import { PaymentBkashService } from "./payment.bkash.service";
+import config from "../../../config";
 
 const createBkashPayment = catchAsync(async (req: Request, res: Response) => {
 	const { purchaseId } = req.params;
@@ -16,6 +17,7 @@ const createBkashPayment = catchAsync(async (req: Request, res: Response) => {
 	if (!req.user) {
 		throw new AppError(httpStatus.UNAUTHORIZED, "User is not authenticated");
 	}
+	console.log(req.user)
 	const userId = req.user.userId;
 
 	const result = await PaymentBkashService.createBkashPaymentService(
@@ -48,7 +50,7 @@ const executeBkashPayment = catchAsync(async (req: Request, res: Response) => {
 		paymentId,
 		userId,
 	);
-
+console.log("executeBkashPayment:",result)
 	sendResponse(res, {
 		statusCode: httpStatus.OK,
 		success: true,
@@ -62,21 +64,43 @@ const bkashCallback = catchAsync(async (req: Request, res: Response) => {
 
 	// Validate paymentID
 	if (typeof paymentID !== "string" || !paymentID) {
-		throw new AppError(httpStatus.BAD_REQUEST, "bKash paymentID is required");
+		// throw new AppError(httpStatus.BAD_REQUEST, "bKash paymentID is required");
+		return res.redirect(`${config.frontend_url}/payment/bkash/callback?status=failed`,)
 	}
 
 	// Check bKash callback status
-	if (status !== "success") {
-		return res.status(httpStatus.BAD_REQUEST).json({
-			success: false,
-			message: "bKash payment was not successful",
-			status,
-		});
-	}
+	// if (status !== "success") {
+	// 	return res.status(httpStatus.BAD_REQUEST).json({
+	// 		success: false,
+	// 		message: "bKash payment was not successful",
+	// 		status,
+	// 	});
+	// }
+	 if (status !== "success") {
+    return res.redirect(
+      `${config.frontend_url}/payment/bkash/callback`,
+    );
+  }
 
 	// Execute payment using bKash paymentID
+	try {
 	const result =
 		await PaymentBkashService.executeBkashPaymentByTransactionId(paymentID);
+		console.log("bkashCallback:",result)
+			if(result.paymentStatus === "FAILED"){
+				return res.redirect(
+				`${config.frontend_url}/payment/bkash/callback?status=failure`,
+				);
+			}
+			if(result.paymentStatus === "PAID"){
+				return res.redirect(
+				`${config.frontend_url}/payment/bkash/callback?status=success&paymentId=${paymentID}`,
+				);
+			}
+		} catch (error) {
+			console.log("bkashCallback:",error)
+		}
+
 
 	sendResponse(res, {
 		statusCode: httpStatus.OK,

@@ -4,8 +4,8 @@ model Asset {
   name       String
   categoryId String @db.Uuid
 
-  brand        String?
-  model        String?
+  brand        String
+  model        String
   serialNumber String? @unique @map("serial_number")
 
   description String?
