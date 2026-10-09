@@ -59,7 +59,7 @@ const userRegisterService = async (payload: IUserRegisterPayload) => {
 
 	// Generate 6 digit OTP
 	const otpValue = crypto.randomInt(100000, 1000000).toString();
-	
+
 	// Store OTP in Redis
 	const otpKey = `user-registration-otp:${email}`;
 
@@ -70,7 +70,6 @@ const userRegisterService = async (payload: IUserRegisterPayload) => {
 		},
 	});
 
-	
 	// Store Registration Data
 	const userRegistrationKey = `user-registration-data:${email}`;
 
@@ -95,7 +94,6 @@ const userRegisterService = async (payload: IUserRegisterPayload) => {
 		},
 	);
 
-	
 	// Email OTP
 	const templatePath = path.join(
 		process.cwd(),
@@ -372,8 +370,7 @@ export const googleLoginService = async (payload: IGoogleLoginPayload) => {
 	// 4. Existing User
 
 	if (existingUser) {
-		
-		// Check Role		
+		// Check Role
 		if (existingUser.role !== UserRole.EMPLOYEE) {
 			throw new AppError(
 				httpStatus.UNAUTHORIZED,
@@ -381,8 +378,7 @@ export const googleLoginService = async (payload: IGoogleLoginPayload) => {
 			);
 		}
 
-		
-		// Check Deleted		
+		// Check Deleted
 		if (existingUser.isDeleted || existingUser.status === UserStatus.DELETED) {
 			throw new AppError(httpStatus.GONE, "User is deleted.");
 		}
