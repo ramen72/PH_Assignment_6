@@ -73,7 +73,7 @@ export const UserRegisterZodSchema = z.object({
 					.optional(),
 				emergencyContactPhone: z
 					.string("Emergency contact phone must be a string.")
-					.regex(/^01[3-9]\d{8}$/, {
+					.refine((val) => val === "" || /^(?:\+880|0)1[3-9]\d{8}$/.test(val), {
 						message:
 							"Please provide a valid Bangladesh emergency contact phone number.",
 					})

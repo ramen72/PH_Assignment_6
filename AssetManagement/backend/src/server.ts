@@ -4,11 +4,9 @@ import config from "./app/config";
 import { prisma } from "./app/lib/prisma";
 import { redisClient } from "./app/lib/redis";
 import { transporter } from "./app/lib/sendMail";
-// import {
-// 	seedSuperAdmin,
-// 	seedTesterAdmin,
-// 	seedTesterDoctor,
-// } from "./app/utils/seed";
+import {
+	seedSuperAdmin,
+} from "./app/utils/seed";
 
 const PORT = config.port;
 
@@ -23,9 +21,7 @@ const main = async () => {
 		await transporter.verify();
 		console.log("Nodemailer connected successfully.");
 
-		// seedSuperAdmin();
-		// seedTesterAdmin();
-		// seedTesterDoctor();
+		seedSuperAdmin();
 		// await deleteUnverifiedDoctors();
 		// await deleteRejectedDoctors();
 

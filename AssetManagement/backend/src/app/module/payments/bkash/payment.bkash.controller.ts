@@ -59,59 +59,122 @@ console.log("executeBkashPayment:",result)
 	});
 });
 
-const bkashCallback = catchAsync(async (req: Request, res: Response) => {
-	const { paymentID, status, signature, apiVersion } = req.query;
+// const bkashCallback = catchAsync(async (req: Request, res: Response) => {
+// 	const { paymentID, status, signature, apiVersion } = req.query;
 
-	// Validate paymentID
-	if (typeof paymentID !== "string" || !paymentID) {
-		// throw new AppError(httpStatus.BAD_REQUEST, "bKash paymentID is required");
-		return res.redirect(`${config.frontend_url}/payment/bkash/callback?status=failed`,)
+// 	// Validate paymentID
+// 	if (typeof paymentID !== "string" || !paymentID) {
+// 		// throw new AppError(httpStatus.BAD_REQUEST, "bKash paymentID is required");
+// 		return res.redirect(`${config.frontend_url}/payment/bkash/callback?status=failed`,)
+// 	}
+
+// 	// Check bKash callback status
+// 	// if (status !== "success") {
+// 	// 	return res.status(httpStatus.BAD_REQUEST).json({
+// 	// 		success: false,
+// 	// 		message: "bKash payment was not successful",
+// 	// 		status,
+// 	// 	});
+// 	// }
+// 	 if (status !== "success") {
+//     return res.redirect(
+//       `${config.frontend_url}/payment/bkash/callback`,
+//     );
+//   }
+
+// 	// Execute payment using bKash paymentID
+// 	try {
+// 	const result =
+// 		await PaymentBkashService.executeBkashPaymentByTransactionId(paymentID);
+// 		console.log("bkashCallback:",result)
+// 			if(result.paymentStatus === "FAILED"){
+// 				return res.redirect(
+// 				`${config.frontend_url}/payment/bkash/callback?status=failure`,
+// 				);
+// 			}
+// 			if(result.paymentStatus === "PAID"){
+// 				return res.redirect(
+// 				`${config.frontend_url}/payment/bkash/callback?status=success&paymentId=${paymentID}`,
+// 				);
+// 			}
+// 		} catch (error) {
+// 			console.log("bkashCallback:",error)
+// 		}
+
+
+// 	sendResponse(res, {
+// 		statusCode: httpStatus.OK,
+// 		success: true,
+// 		message: "bKash payment completed successfully",
+// 		data: result,
+// 	});
+// });
+
+
+const bkashCallback = catchAsync(
+  async (req: Request, res: Response) => {
+	const { paymentID, status } = req.query;
+
+	// Helper: redirect the user back to the frontend.
+	const redirectToFrontend = (
+	  callbackStatus: "success" | "failed" | "pending",
+	  paymentId?: string,
+	) => {
+	  const callbackUrl = new URL(
+		"/payment/bkash/callback",
+		config.frontend_url,
+	  );
+
+	  callbackUrl.searchParams.set("status", callbackStatus);
+
+	  if (paymentId) {
+		callbackUrl.searchParams.set("paymentID", paymentId);
+	  }
+
+	  return res.redirect(302, callbackUrl.toString());
+	};
+
+	// Validate paymentID.
+	if (typeof paymentID !== "string" || !paymentID.trim()) {
+	  return redirectToFrontend("failed");
 	}
 
-	// Check bKash callback status
-	// if (status !== "success") {
-	// 	return res.status(httpStatus.BAD_REQUEST).json({
-	// 		success: false,
-	// 		message: "bKash payment was not successful",
-	// 		status,
-	// 	});
-	// }
-	 if (status !== "success") {
-    return res.redirect(
-      `${config.frontend_url}/payment/bkash/callback`,
-    );
-  }
+	// Validate the callback status.
+	if (status !== "success") {
+	  return redirectToFrontend("failed", paymentID);
+	}
 
-	// Execute payment using bKash paymentID
 	try {
-	const result =
-		await PaymentBkashService.executeBkashPaymentByTransactionId(paymentID);
-		console.log("bkashCallback:",result)
-			if(result.paymentStatus === "FAILED"){
-				return res.redirect(
-				`${config.frontend_url}/payment/bkash/callback?status=failure`,
-				);
-			}
-			if(result.paymentStatus === "PAID"){
-				return res.redirect(
-				`${config.frontend_url}/payment/bkash/callback?status=success&paymentId=${paymentID}`,
-				);
-			}
-		} catch (error) {
-			console.log("bkashCallback:",error)
-		}
+	  // Execute and verify payment on the backend.
+	  const result =
+		await PaymentBkashService.executeBkashPaymentByTransactionId(
+		  paymentID,
+		);
 
+	  console.log("bKash callback result:", result);
 
-	sendResponse(res, {
-		statusCode: httpStatus.OK,
-		success: true,
-		message: "bKash payment completed successfully",
-		data: result,
-	});
-});
+	  // Redirect according to the verified payment status.
+	  if (result.paymentStatus === "PAID") {
+		return redirectToFrontend("success", paymentID);
+	  }
 
+	  if (result.paymentStatus === "FAILED") {
+		return redirectToFrontend("failed", paymentID);
+	  }
+
+	  return redirectToFrontend("pending", paymentID);
+	} catch (error) {
+	  console.error("bKash callback error:", error);
+
+	  return redirectToFrontend("failed", paymentID);
+	}
+  },
+);
 export const PaymentBkashController = {
 	createBkashPayment,
 	executeBkashPayment,
 	bkashCallback,
 };
+
+
+export default bkashCallback;
