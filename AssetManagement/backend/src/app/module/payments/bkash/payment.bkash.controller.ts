@@ -59,58 +59,6 @@ console.log("executeBkashPayment:",result)
 	});
 });
 
-// const bkashCallback = catchAsync(async (req: Request, res: Response) => {
-// 	const { paymentID, status, signature, apiVersion } = req.query;
-
-// 	// Validate paymentID
-// 	if (typeof paymentID !== "string" || !paymentID) {
-// 		// throw new AppError(httpStatus.BAD_REQUEST, "bKash paymentID is required");
-// 		return res.redirect(`${config.frontend_url}/payment/bkash/callback?status=failed`,)
-// 	}
-
-// 	// Check bKash callback status
-// 	// if (status !== "success") {
-// 	// 	return res.status(httpStatus.BAD_REQUEST).json({
-// 	// 		success: false,
-// 	// 		message: "bKash payment was not successful",
-// 	// 		status,
-// 	// 	});
-// 	// }
-// 	 if (status !== "success") {
-//     return res.redirect(
-//       `${config.frontend_url}/payment/bkash/callback`,
-//     );
-//   }
-
-// 	// Execute payment using bKash paymentID
-// 	try {
-// 	const result =
-// 		await PaymentBkashService.executeBkashPaymentByTransactionId(paymentID);
-// 		console.log("bkashCallback:",result)
-// 			if(result.paymentStatus === "FAILED"){
-// 				return res.redirect(
-// 				`${config.frontend_url}/payment/bkash/callback?status=failure`,
-// 				);
-// 			}
-// 			if(result.paymentStatus === "PAID"){
-// 				return res.redirect(
-// 				`${config.frontend_url}/payment/bkash/callback?status=success&paymentId=${paymentID}`,
-// 				);
-// 			}
-// 		} catch (error) {
-// 			console.log("bkashCallback:",error)
-// 		}
-
-
-// 	sendResponse(res, {
-// 		statusCode: httpStatus.OK,
-// 		success: true,
-// 		message: "bKash payment completed successfully",
-// 		data: result,
-// 	});
-// });
-
-
 const bkashCallback = catchAsync(
   async (req: Request, res: Response) => {
 	const { paymentID, status } = req.query;
@@ -170,10 +118,27 @@ const bkashCallback = catchAsync(
 	}
   },
 );
+const getSinglePaymentByAssetPurchasesId = catchAsync(
+  async (req: Request, res: Response) => {
+	const { purchaseId } = req.params;
+	console.log(purchaseId)
+	const result = await PaymentBkashService.getSinglePaymentByAssetPurchaseIdService(purchaseId as string);
+
+	sendResponse(res, {
+		statusCode: httpStatus.OK,
+		success: true,
+		message: "Asset created successfully",
+		data: result,
+	});
+  }
+);
+
+
 export const PaymentBkashController = {
 	createBkashPayment,
 	executeBkashPayment,
 	bkashCallback,
+	getSinglePaymentByAssetPurchasesId
 };
 
 
