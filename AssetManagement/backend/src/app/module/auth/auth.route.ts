@@ -70,6 +70,15 @@ router.post(
 router.post("/refreshToken", AuthController.refreshToken);
 
 router.get(
+	"/allUsers",
+	auth(
+		UserRole.SUPER_ADMIN,
+		UserRole.ADMIN
+	),
+	AuthController.getAllUser,
+);
+
+router.get(
 	"/getMe",
 	auth(
 		UserRole.SUPER_ADMIN,

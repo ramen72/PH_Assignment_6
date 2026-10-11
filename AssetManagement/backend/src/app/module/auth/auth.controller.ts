@@ -209,6 +209,26 @@ const refreshToken = catchAsync(async (req: Request, res: Response) => {
 	});
 });
 
+const getAllUser = catchAsync(async (req: Request, res: Response) => {
+	const user = req.user as IRequestUser | undefined;
+
+	if (!user) {
+		throw new AppError(
+			httpStatus.BAD_REQUEST,
+			"User information is missing in the request",
+		);
+	}
+
+	const result = await AuthService.getAllUserService();
+
+	sendResponse(res, {
+		statusCode: httpStatus.OK,
+		success: true,
+		message: "All User fetched successfully",
+		data: result,
+	});
+});
+
 const getMe = catchAsync(async (req: Request, res: Response) => {
 	const user = req.user as IRequestUser | undefined;
 
@@ -238,5 +258,6 @@ export const AuthController = {
 	userLogout,
 	userLogoutFromAllDevices,
 	refreshToken,
+	getAllUser,
 	getMe,
 };

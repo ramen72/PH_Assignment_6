@@ -940,6 +940,28 @@ const refreshTokenService = async (token: string) => {
 	};
 };
 
+const getAllUserService = async () => {
+	
+	const result = await prisma.user.findMany({
+		omit:{
+			password:true
+		},
+		include:{
+			profile: true,
+			assetAssignments:true,
+			assignedAssets:true,
+			assetRequests:true,
+			reviewedAssetRequests:true,
+			assetPurchases:true,
+			maintenanceRecordsReported:true,
+			notifications:true,
+			auditLogs:true,
+			payments:true,
+		}
+	});
+	return result;
+};
+
 const getMeService = async (user: IRequestUser | undefined) => {
 	if (!user) {
 		throw new AppError(httpStatus.UNAUTHORIZED, "User information is missing.");
@@ -1001,5 +1023,6 @@ export const AuthService = {
 	userLogoutService,
 	userLogoutFromAllDevicesService,
 	refreshTokenService,
+	getAllUserService,
 	getMeService,
 };
