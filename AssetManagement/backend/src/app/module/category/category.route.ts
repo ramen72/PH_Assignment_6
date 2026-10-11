@@ -6,11 +6,14 @@ import {
 	CreateAssetCategoryZodSchema,
 	UpdateAssetCategoryZodSchema,
 } from "./category.validation";
+import { auth } from "../../middleware/checkAuth";
+import { UserRole } from "../../../generated/prisma/enums";
 
 const router = Router();
 
 router.post(
 	"/",
+	auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
 	validateRequest(CreateAssetCategoryZodSchema),
 	AssetCategoryController.createAssetCategory,
 );
