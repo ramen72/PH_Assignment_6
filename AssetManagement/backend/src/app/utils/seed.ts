@@ -57,7 +57,7 @@ export const seedSuperAdmin = async () => {
 	}
 };
 
-export const seedTesterAdmin = async () => {
+export const seedAdmin = async () => {
 	try {
 		const isSuperAdmin = await prisma.user.findUnique({
 			where: {
@@ -104,68 +104,6 @@ export const seedTesterAdmin = async () => {
 		await prisma.user.delete({
 			where: {
 				email: config.tester_admin_email,
-			},
-		});
-	}
-};
-
-export const seedTesterDoctor = async () => {
-	try {
-		const isSuperDoctor = await prisma.user.findUnique({
-			where: {
-				email: config.tester_doctor_email,
-			},
-		});
-
-		if (isSuperDoctor) {
-			console.log("Tester Doctor Already Exist.");
-			return;
-		}
-
-		const name = config.tester_doctor_name;
-		const email = config.tester_doctor_email;
-		const password = config.tester_doctor_password;
-
-		if (!name || !email || !password) {
-			throw new AppError(
-				httpStatus.BAD_REQUEST,
-				"Tester Doctor Name or Email or Password is missing in env file.!",
-			);
-		}
-
-		const hashedPassword = await bcrypt.hash(
-			password,
-			Number(config.bcrypt_salt_rounds),
-		);
-
-		const testerDoctor = await prisma.user.create({
-			data: {
-				name,
-				email,
-				password: hashedPassword,
-				role: UserRole.ADMIN,
-				needPasswordChange: false,
-				emailVerified: true,
-				doctor: {
-					create: {
-						name,
-						email,
-						experienceYears: 5,
-						licenseNumber: "MBS42DEI345C",
-						qualifications: "MBBS",
-						specialization: "Neurology",
-					},
-				},
-			},
-		});
-
-		console.log("Tester Doctor created: ", testerDoctor);
-	} catch (error) {
-		console.log("Error seeding Tester Doctor user : ", error);
-
-		await prisma.user.delete({
-			where: {
-				email: config.tester_doctor_email,
 			},
 		});
 	}
