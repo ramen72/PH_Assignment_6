@@ -232,7 +232,29 @@ const executeBkashPaymentByTransactionId = async (transactionId: string) => {
 	return result;
 };
 
-// 3. Get Single payment by Asset Purchase Id
+// Get All Payment
+const getAllPaymentService = async () => {
+	
+	// 1. Find payment by Asset Purchase Id
+	const result = await prisma.payment.findMany({});
+
+	return result;
+};
+
+// Get Single Payment
+const getSinglePaymentByIdService = async (paymentId: string) => {
+	
+	// 1. Find payment by Asset Purchase Id
+	const result = await prisma.payment.findMany({
+		where:{
+			id:paymentId
+		}
+	});
+
+	return result;
+};
+
+// Get Single payment by Asset Purchase Id
 const getSinglePaymentByAssetPurchaseIdService = async (purchaseId: string) => {
 	
 	// 1. Find payment by Asset Purchase Id
@@ -249,5 +271,7 @@ export const PaymentBkashService = {
 	createBkashPaymentService,
 	executeBkashPayment,
 	executeBkashPaymentByTransactionId,
+	getAllPaymentService,
+	getSinglePaymentByIdService,
 	getSinglePaymentByAssetPurchaseIdService
 };

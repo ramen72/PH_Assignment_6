@@ -118,11 +118,39 @@ const bkashCallback = catchAsync(
 	}
   },
 );
+const getAllPayment = catchAsync(
+  async (req: Request, res: Response) => {
+	const { purchaseId } = req.params;
+	console.log(purchaseId)
+	const result = await PaymentBkashService.getAllPaymentService();
+
+	sendResponse(res, {
+		statusCode: httpStatus.OK,
+		success: true,
+		message: "Asset created successfully",
+		data: result,
+	});
+  }
+);
 const getSinglePaymentByAssetPurchasesId = catchAsync(
   async (req: Request, res: Response) => {
 	const { purchaseId } = req.params;
 	console.log(purchaseId)
 	const result = await PaymentBkashService.getSinglePaymentByAssetPurchaseIdService(purchaseId as string);
+
+	sendResponse(res, {
+		statusCode: httpStatus.OK,
+		success: true,
+		message: "Asset created successfully",
+		data: result,
+	});
+  }
+);
+const getSinglePaymentById = catchAsync(
+  async (req: Request, res: Response) => {
+	const { paymentId } = req.params;
+	console.log(paymentId)
+	const result = await PaymentBkashService.getSinglePaymentByIdService(paymentId as string);
 
 	sendResponse(res, {
 		statusCode: httpStatus.OK,
@@ -138,6 +166,8 @@ export const PaymentBkashController = {
 	createBkashPayment,
 	executeBkashPayment,
 	bkashCallback,
+	getAllPayment,
+	getSinglePaymentById,
 	getSinglePaymentByAssetPurchasesId
 };
 

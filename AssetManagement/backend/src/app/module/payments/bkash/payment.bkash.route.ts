@@ -29,6 +29,10 @@ router.post(
 
 router.get("/callback", PaymentBkashController.bkashCallback);
 
+router.get("/allPayment", PaymentBkashController.getAllPayment);
+
+router.get("/singlePayment/:paymentId", PaymentBkashController.getSinglePaymentById);
+
 router.get("/:purchaseId", PaymentBkashController.getSinglePaymentByAssetPurchasesId);
 
 export const PaymentBkashRoutes = router;
