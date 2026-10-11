@@ -1,4 +1,6 @@
 import { Router } from "express";
+import { UserRole } from "../../../generated/prisma/enums";
+import { auth } from "../../middleware/checkAuth";
 import { validateRequest } from "../../middleware/validateRequest";
 import { AssetCategoryController } from "./category.controller";
 import {
@@ -6,8 +8,6 @@ import {
 	CreateAssetCategoryZodSchema,
 	UpdateAssetCategoryZodSchema,
 } from "./category.validation";
-import { auth } from "../../middleware/checkAuth";
-import { UserRole } from "../../../generated/prisma/enums";
 
 const router = Router();
 
