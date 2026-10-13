@@ -29,7 +29,7 @@ router.post(
 router.get(
 	"/",
 	auth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.MANAGER),
-	validateRequest(createAssetRequestSchema),
+	// validateRequest(createAssetRequestSchema),
 	AssetRequestController.getAllAssetRequests,
 );
 
