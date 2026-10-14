@@ -19,7 +19,6 @@ router.post(
 		UserRole.SUPER_ADMIN,
 		UserRole.ADMIN,
 		UserRole.MANAGER,
-		UserRole.EMPLOYEE,
 	),
 	AssetController.createAsset,
 );
