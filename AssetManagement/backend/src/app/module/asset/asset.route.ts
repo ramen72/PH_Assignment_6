@@ -36,6 +36,11 @@ router.get(
 // Update Asset
 router.patch(
 	"/:id",
+	auth(
+		UserRole.SUPER_ADMIN,
+		UserRole.ADMIN,
+		UserRole.MANAGER,
+	),
 	validateRequest(assetIdZodSchema),
 	validateRequest(updateAssetZodSchema),
 	AssetController.updateAsset,
@@ -44,6 +49,10 @@ router.patch(
 // Delete Asset
 router.delete(
 	"/:id",
+	auth(
+		UserRole.SUPER_ADMIN,
+		UserRole.ADMIN,
+	),
 	validateRequest(assetIdZodSchema),
 	AssetController.deleteAsset,
 );
