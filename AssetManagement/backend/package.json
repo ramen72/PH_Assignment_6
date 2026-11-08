@@ -1,11 +1,11 @@
 {
-	"name": "project-ph-healthcare-system-backend",
+	"name": "asset-management-system-backend",
 	"version": "1.0.0",
 	"description": "",
 	"main": "index.js",
 	"scripts": {
 		"dev": "tsx watch src/server.ts",
-		"build": "npm i & prisma generate && tsup",
+		"build": "tsup",
 		"start": "node dist/server.js",
 		"databaseGenerate": "npx prisma generate",
 		"databaseMigrate": "npx prisma migrate dev",
