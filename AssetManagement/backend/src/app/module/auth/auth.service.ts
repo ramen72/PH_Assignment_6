@@ -780,7 +780,7 @@ const userLogoutService = async (refreshToken: string) => {
 	// Find the refresh token
 	const storedToken = await prisma.refreshToken.findUnique({
 		where: {
-			token: refreshToken,
+			token: refreshToken, revokedAt: null
 		},
 	});
 

@@ -7,6 +7,15 @@ import { sendResponse } from "../../utils/sendResponse";
 import { AuthService } from "./auth.service";
 import { IRequestUser } from "./auth.interface";
 
+const isProd = config.node_env === "production";
+
+const cookieOptions = {
+	httpOnly: true,
+	secure: isProd,
+	sameSite: (isProd ? "none" : "lax") as "none" | "lax",
+	path: "/",
+};
+
 const userRegister = catchAsync(async (req: Request, res: Response) => {
 	const payload = req.body;
 
@@ -49,17 +58,13 @@ const googleLoginController = catchAsync(
 
 		// Access Token
 		res.cookie("accessToken", accessToken, {
-			httpOnly: true,
-			secure: config.node_env === "production",
-			sameSite: config.node_env === "production" ? "none" : "lax",
+			...cookieOptions,
 			maxAge: 1000 * 60 * 60 * 24, // 1 day
 		});
 
 		// Refresh Token
 		res.cookie("refreshToken", refreshToken, {
-			httpOnly: true,
-			secure: config.node_env === "production",
-			sameSite: config.node_env === "production" ? "none" : "lax",
+			...cookieOptions,
 			maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
 		});
 
@@ -112,17 +117,13 @@ const userLogin = catchAsync(async (req: Request, res: Response) => {
 	const { accessToken, refreshToken } = result;
 	// Access Token Cookie
 	res.cookie("accessToken", accessToken, {
-		httpOnly: true,
-		secure: config.node_env === "production",
-		sameSite: config.node_env === "production" ? "none" : "lax",
-		maxAge: 1000 * 60 * 60, // 1 hour
+		...cookieOptions,
+		maxAge: 1000 * 60 * 60 * 24, // 1 day
 	});
 
 	// Refresh Token Cookie
 	res.cookie("refreshToken", refreshToken, {
-		httpOnly: true,
-		secure: config.node_env === "production",
-		sameSite: config.node_env === "production" ? "none" : "lax",
+		...cookieOptions,
 		maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
 	});
 
@@ -185,17 +186,13 @@ const refreshToken = catchAsync(async (req: Request, res: Response) => {
 
 	// Access Token Cookie
 	res.cookie("accessToken", accessToken, {
-		httpOnly: true,
-		secure: config.node_env === "production",
-		sameSite: config.node_env === "production" ? "none" : "lax",
-		maxAge: 1000 * 60 * 60, // 1 hour
+		...cookieOptions,
+		maxAge: 1000 * 60 * 60 * 24, // 1 day
 	});
 
 	// Refresh Token Cookie
 	res.cookie("refreshToken", newRefreshToken, {
-		httpOnly: true,
-		secure: config.node_env === "production",
-		sameSite: config.node_env === "production" ? "none" : "lax",
+		...cookieOptions,
 		maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
 	});
 	sendResponse(res, {
