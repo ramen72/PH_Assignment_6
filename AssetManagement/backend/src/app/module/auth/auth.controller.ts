@@ -4,8 +4,8 @@ import config from "../../config";
 import { AppError } from "../../utils/AppError";
 import { catchAsync } from "../../utils/catchAsync";
 import { sendResponse } from "../../utils/sendResponse";
+import type { IRequestUser } from "./auth.interface";
 import { AuthService } from "./auth.service";
-import { IRequestUser } from "./auth.interface";
 
 const isProd = config.node_env === "production";
 
@@ -14,6 +14,11 @@ const cookieOptions = {
 	secure: isProd,
 	sameSite: (isProd ? "none" : "lax") as "none" | "lax",
 	path: "/",
+};
+
+const clearAuthCookies = (res: Response) => {
+  res.clearCookie("accessToken", cookieOptions);
+  res.clearCookie("refreshToken", cookieOptions);
 };
 
 const userRegister = catchAsync(async (req: Request, res: Response) => {
@@ -135,20 +140,34 @@ const userLogin = catchAsync(async (req: Request, res: Response) => {
 	});
 });
 
+// const userLogout = catchAsync(async (req: Request, res: Response) => {
+// 	const refreshToken = req.cookies.refreshToken;
+
+// 	await AuthService.userLogoutService(refreshToken);
+
+// 	res.clearCookie("accessToken");
+// 	res.clearCookie("refreshToken");
+
+// 	sendResponse(res, {
+// 		statusCode: httpStatus.OK,
+// 		success: true,
+// 		message: "User logged out successfully",
+// 		data: {},
+// 	});
+// });
+
 const userLogout = catchAsync(async (req: Request, res: Response) => {
-	const refreshToken = req.cookies.refreshToken;
-
-	await AuthService.userLogoutService(refreshToken);
-
-	res.clearCookie("accessToken");
-	res.clearCookie("refreshToken");
-
-	sendResponse(res, {
-		statusCode: httpStatus.OK,
-		success: true,
-		message: "User logged out successfully",
-		data: {},
-	});
+  try {
+    await AuthService.userLogoutService(req.cookies?.refreshToken);
+  } finally {
+    clearAuthCookies(res);
+  }
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "User logged out successfully",
+    data: {},
+  });
 });
 
 const userLogoutFromAllDevices = catchAsync(
